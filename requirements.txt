@@ -1,4 +1,4 @@
 pandas
 numpy
 lancedb
-sklearn
+scikit-learn

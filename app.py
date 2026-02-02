@@ -8,36 +8,59 @@ from sklearn import preprocessing
 
 uri = "ex_lancedb"
 db = lancedb.connect(uri)
-
 item_table = db.open_table("attractions")
 
 WEIGHT_MULTI = 2.0
 WEIGHT_TYPE = 1.0
 WEIGHT_SUMMARY = 0.5
 
+MHE_LIKE_LEARNING_RATE = 0.2
+LABEL_EMBED_LIKE_LEARNING_RATE = 0.1
+SUMMARY_EMBED_LIKE_LEARNING_RATE = 0.1
+
+MHE_DISLIKE_LEARNING_RATE = 0.1
+EMBED_REJECTION_RATE = 0.3
+   
+MMR_LAMBDA = 0.3 # Diversity 0...1 Relevance
+
 class User:
     def __init__(self, mhe: list):
         self.labelMHE = np.array(mhe)
         self.labelEmbed = np.zeros(384)
         self.summaryEmbed = np.zeros(384)
+        self.visitedIDs = set()
 
-        self.visitedIndeces = set()
+    # take ID to represent the actual HTTP flow from front-end to back-end
+    def getAttraction(self, attractionID):
+        return item_table.search().where(f"id == '{attractionID}'").to_pandas().iloc[0]
 
-        # Learning rate
-        self.MHE_LIKE_LEARNING_RATE = 0.2
-        self.LABEL_EMBED_LIKE_LEARNING_RATE = 0.1
-        self.SUMMARY_EMBED_LIKE_LEARNING_RATE = 0.1
+    def like(self, attractionID):
+        self.visitedIDs.add(attractionID)
+        itemRow = self.getAttraction(attractionID)
 
-        self.MHE_DISLIKE_LEARNING_RATE = 0.1
-        self.EMBED_REJECTION_RATE = 0.3
-
-        self.MMR_LAMBDA = 0.3 # Diversity 0...1 Relevance
-
-    def like(self, attractionRow):
-        pass
+        self.labelMHE += (itemRow.labelMHE * MHE_LIKE_LEARNING_RATE)
+        # Adjust embeddings - EMA
+        self.labelEmbed = (1 - LABEL_EMBED_LIKE_LEARNING_RATE) * self.labelEmbed + LABEL_EMBED_LIKE_LEARNING_RATE * itemRow.labelVectors
+        self.summaryEmbed = (1 - SUMMARY_EMBED_LIKE_LEARNING_RATE) * self.summaryEmbed + SUMMARY_EMBED_LIKE_LEARNING_RATE * itemRow.summaryVectors
     
-    def dislike(self, attractionRow):
-        pass
+    def dislike(self, attractionID):
+        self.visitedIDs.add(attractionID)
+        itemRow = self.getAttraction(attractionID)
+
+        # Adjust MHE
+        newMHE = self.labelMHE - (itemRow.labelMHE * MHE_DISLIKE_LEARNING_RATE)
+        self.labelMHE = np.maximum(0, newMHE) # Clipping so it wont go negative
+
+        # Adjust embeddings - Orthogonal(Vector Rejection)
+        a = self.labelEmbed
+        b = itemRow.labelVectors
+        projection = np.multiply((np.dot(a,b) / np.dot(b,b)), b)
+        self.labelEmbed -= EMBED_REJECTION_RATE * projection
+
+        a = self.summaryEmbed
+        b = itemRow.summaryVectors
+        projection = np.multiply((np.dot(a,b) / np.dot(b,b)), b)
+        self.summaryEmbed -= EMBED_REJECTION_RATE * projection        
     
     def getUserVector(self):
         # Normalize in L2 #TODO: recheck if this is valid valid
@@ -56,16 +79,22 @@ class User:
         
         if geo_filter_type != "none":
             if not geo_filter_name: return ValueError("Need to provide a filter name")
-            geo_filter = f"{geo_filter_type} == '{geo_filter_name}'"
+            filter = f"{geo_filter_type} == '{geo_filter_name}'"
         else:
-            geo_filter =  "country != ''"
+            filter =  "country != ''"
+        
+        # Filter out "interacted" items
+        if self.visitedIDs:
+            id_str = ", ".join([f"'{i}'" for i in self.visitedIDs])
+            visited_filter = f" AND id NOT IN ({id_str})"
+            filter += visited_filter
 
         #TODO: Get UserVector here...
         userVector = self.getUserVector()
         knn_results = (
             item_table.search(query=userVector, vector_column_name="finalVector")
             .distance_type("cosine")
-            .where(geo_filter)
+            .where(filter)
             .limit(100)
             .to_pandas()    
         )
@@ -87,7 +116,7 @@ class User:
                     sims = cosine_similarity(row.finalVector.reshape(1, -1), selected_matrix)
                     max_redundancy = np.max(sims)
                 
-                mmr_score = self.MMR_LAMBDA * row.relevance - ((1 - self.MMR_LAMBDA) * max_redundancy)
+                mmr_score = MMR_LAMBDA * row.relevance - ((1 - MMR_LAMBDA) * max_redundancy)
                 if mmr_score > best_mmr:
                     best_mmr = mmr_score
                     best_idx = i
@@ -97,10 +126,4 @@ class User:
                 mmr_results = pd.concat([mmr_results, chosenRow], ignore_index=True)
                 knn_results = knn_results.drop(best_idx).reset_index(drop=True)
                     
-        return mmr_results
-        
-
-mhe = np.array([0,1,0,0,1,0,0,1,1])
-
-test = User(mhe)
-print(test.getRecommendations(geo_filter_type="county", geo_filter_name="London"))
+        return mmr_results #currently df, in real system, probably JSON, and omit the vector column as well   
