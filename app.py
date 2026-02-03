@@ -72,7 +72,7 @@ class User:
         ])
         return preprocessing.normalize([combined])[0]
     
-    def getRecommendations(self, n=5, geo_filter_type="none", geo_filter_name=""):
+    def getRecommendations(self, n=10, geo_filter_type="none", geo_filter_name=""):
         # Random pre-check probably doesnt matter that much
         if geo_filter_type not in ["county", "region", "country", "none"]:
             return TypeError("Not a valid geo_filter")
@@ -89,7 +89,6 @@ class User:
             visited_filter = f" AND id NOT IN ({id_str})"
             filter += visited_filter
 
-        #TODO: Get UserVector here...
         userVector = self.getUserVector()
         knn_results = (
             item_table.search(query=userVector, vector_column_name="finalVector")
