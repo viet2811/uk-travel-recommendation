@@ -1,7 +1,0 @@
-pandas
-numpy
-lancedb
-scikit-learn
-Django
-djangorestframework
-django-filter
