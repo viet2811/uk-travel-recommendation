@@ -1,8 +1,10 @@
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import UserRegistrationSerializer
 from rest_framework.permissions import AllowAny
+from .models import UserProfile
+import json
 
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
@@ -15,3 +17,16 @@ class UserRegistrationView(APIView):
             }, status=status.HTTP_201_CREATED)
         # Username already exists
         return Response({"username": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    
+class SetUserReferencesView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        mhe = request.data.get('preferences')
+        # Extra caution if front-end go wrong
+        if not mhe:
+            return Response({"error": "Missing preferences in request body"}, status=status.HTTP_400_BAD_REQUEST)
+        # Convert into an actual list
+        mhe = json.loads(mhe)
+        UserProfile.objects.filter(user=request.user).update(label_mhe=mhe)
+        return Response(status=status.HTTP_200_OK)

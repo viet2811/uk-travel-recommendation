@@ -3,20 +3,12 @@ import numpy as np
 from django.core.management.base import BaseCommand
 from recommendations.models import Attraction
 from shapely import wkt
+from recommendations.utils import normalize
 
 def pathStrToList(pathStr: str):
     return [path.strip() for path in pathStr.split(",")]
 
-WEIGHT_MHE = 1.5
-WEIGHT_TYPE = 1.0
-WEIGHT_SUMMARY = 0.5
 
-def normalize(labelMHE, labelEmbed, summaryEmbed):
-    return np.concatenate([
-        (labelMHE / np.linalg.norm(labelMHE)) * WEIGHT_MHE,
-        (labelEmbed / np.linalg.norm(labelEmbed)) * WEIGHT_TYPE,
-        (summaryEmbed / np.linalg.norm(summaryEmbed)) * WEIGHT_SUMMARY,
-    ])
 
 class Command(BaseCommand):
     help = 'Load full attractions data in DB'
