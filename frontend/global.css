@@ -1,3 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #fdf6e3;
+    --foreground: #073642;
+    --card: #eee8d5;
+    --card-foreground: #073642;
+    --primary: #d33682;
+    --primary-foreground: #ffffff;
+    --secondary: #2aa198;
+    --secondary-foreground: #ffffff;
+    --muted: #93a1a1;
+    --muted-foreground: #073642;
+    --accent: #cb4b16;
+    --accent-foreground: #ffffff;
+    --destructive: #dc322f;
+    --destructive-foreground: #ffffff;
+    --border: #839496;
+    --input: #839496;
+    --ring: #d33682;
+    --radius: 4px;
+  }
+
+  .dark {
+    --background: #002b36;
+    --foreground: #93a1a1;
+    --card: #073642;
+    --card-foreground: #93a1a1;
+    --primary: #d33682;
+    --primary-foreground: #ffffff;
+    --secondary: #2aa198;
+    --secondary-foreground: #ffffff;
+    --muted: #586e75;
+    --muted-foreground: #93a1a1;
+    --border: #586e75;
+    --input: #586e75;
+  }
+}
+
+@layer utilities {
+  .font-bold {
+    font-family: 'Outfit-Bold';
+    font-weight: normal; /* This stops the '700' from fighting the custom font */
+  }
+}
