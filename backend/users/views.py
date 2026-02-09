@@ -28,5 +28,19 @@ class SetUserReferencesView(APIView):
             return Response({"error": "Missing preferences in request body"}, status=status.HTTP_400_BAD_REQUEST)
         # Convert into an actual list
         mhe = json.loads(mhe)
-        UserProfile.objects.filter(user=request.user).update(label_mhe=mhe)
+        UserProfile.objects.filter(user=request.user).update(labelMHE=mhe)
         return Response(status=status.HTTP_200_OK)
+    
+class ResetUserProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        UserProfile.objects.update_or_create(
+            user=request.user,
+            defaults={
+                'labelMHE': [0.0] * 9, 
+                'labelEmbed': [0.0] * 384,
+                'summaryEmbed': [0.0] * 384
+            }
+        )
+        return Response({"message": "user profile is reset."},status=status.HTTP_200_OK)

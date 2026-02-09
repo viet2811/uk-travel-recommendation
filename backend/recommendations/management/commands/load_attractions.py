@@ -8,8 +8,6 @@ from recommendations.utils import normalize
 def pathStrToList(pathStr: str):
     return [path.strip() for path in pathStr.split(",")]
 
-
-
 class Command(BaseCommand):
     help = 'Load full attractions data in DB'
 
@@ -22,6 +20,9 @@ class Command(BaseCommand):
         df2['image_list'] = df2['image_path'].apply(pathStrToList)
         
         self.stdout.write(f"Prepared {len(df2)} rows for insertion.")
+
+        # Clear the attraction rows to rewrite
+        Attraction.objects.all().delete()
 
         # BULK
         objects_to_create = []
@@ -45,10 +46,10 @@ class Command(BaseCommand):
                 region=row['region'],
                 country=row['country'],
 
-                labelMHE=row['labelMHE'],
-                labelEmbed=row['labelVectors'],
-                summaryEmbed=row['summaryVectors'],
-                finalVector=normalize(row['labelMHE'],row['labelVectors'], row['summaryVectors']),
+                labelMHE=row['labelMHE'].tolist(),
+                labelEmbed=row['labelVectors'].tolist(),
+                summaryEmbed=row['summaryVectors'].tolist(),
+                finalVector=normalize(row['labelMHE'],row['labelVectors'], row['summaryVectors']).tolist(),
             )
             objects_to_create.append(attraction)
 

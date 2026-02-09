@@ -19,9 +19,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # 2. AUTOMATICALLY create the Profile for them
         UserProfile.objects.create(
             user=user,
-            label_mhe=[0.0] * 9, 
-            label_embed=[0.0] * 384,
-            summary_embed=[0.0] * 384
+            labelMHE=[0.0] * 9, 
+            labelEmbed=[0.0] * 384,
+            summaryEmbed=[0.0] * 384
         )
 
         return user
