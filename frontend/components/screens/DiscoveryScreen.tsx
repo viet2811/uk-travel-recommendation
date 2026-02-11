@@ -39,18 +39,18 @@ const testItems: Attraction[] = [
 
 export default function DiscoveryScreen() {
   return (
-    <View className="flex-1 bg-background px-6 py-20">
-      <AttractionCard item={testItems[0]} />
+    <View className="flex-1 bg-background px-6 pb-20 pt-32">
+      <AttractionCard item={testItems[1]} />
 
       {/* Dislike/More Details/Like bottom deck */}
       <View className="absolute bottom-10 w-1/2 flex-row justify-between self-center">
-        <View className="rounded-full border border-border p-3">
+        <View className="rounded-full border border-border p-3 shadow-sm">
           <X size={32} color={colors.destructive} />
         </View>
-        <View className="rounded-full border border-border p-3">
+        <View className="rounded-full border border-border p-3 shadow-sm">
           <Ellipsis size={32} color={colors.border} />
         </View>
-        <View className="rounded-full border border-border p-3">
+        <View className="rounded-full border border-border p-3 shadow-sm">
           <Heart size={32} color={colors.secondary} />
         </View>
       </View>

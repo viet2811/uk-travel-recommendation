@@ -30,7 +30,7 @@ export default function ImageCarousel({ images }: { images: string[] }) {
       className="w-full items-center"
       onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
       {containerWidth > 0 && (
-        <View style={{ width: containerWidth, height: 400 }}>
+        <View style={{ width: containerWidth, height: 420 }}>
           {/* Left clickable area */}
           <Pressable
             onPress={goPrev}
@@ -60,7 +60,7 @@ export default function ImageCarousel({ images }: { images: string[] }) {
           <Carousel
             ref={ref}
             width={containerWidth}
-            height={400}
+            height={420}
             data={images}
             enabled={images.length > 1}
             onProgressChange={progress}

@@ -88,66 +88,67 @@ export default function AttractionCard({ item }: { item: Attraction }) {
   );
   const labels = item.parentTypeLabel.split(',');
   const userLocation = useLocation();
-  if (!userLocation) return <Text>Loading location...</Text>;
-  const distanceToUser = getDistanceFromLatLonInKm(
-    userLocation.latitude,
-    userLocation.longitude,
-    item.latitude,
-    item.longtitude
-  );
-  console.log(distanceToUser);
-  return (
-    <>
-      <View className="mt-4 gap-y-2 rounded-2xl border border-border bg-card p-6 shadow-sm">
-        <View>
-          <Text className="bold font-bold text-3xl text-accent">{item.name}</Text>
-          <View className="flex-row items-center gap-x-1">
-            <Home size={14} className="text-foreground" />
-            <Text className="font-sans text-sm text-foreground">{uniqueLocations.join(', ')}</Text>
-          </View>
-          <View className="flex-row items-center gap-x-1">
-            <MapPin size={14} className="text-foreground" />
-            <Text className="font-sans text-sm text-foreground">{distanceToUser} km away</Text>
-          </View>
-        </View>
-        <ImageCarousel images={item.image_path} />
-        <View
-          className={`max-h-11 min-h-11 gap-x-3 gap-y-1 ${labels.length > 2 ? 'flex-row flex-wrap' : ''} `}>
-          {labels.map((label) => {
-            // Get config from map, or use default if slug doesn't exist
-            const config = CATEGORY_MAP[label];
-            const IconComponent = config.icon;
 
-            return (
-              <View key={label} className="flex-row items-center gap-x-1">
-                <IconComponent size={16} className="text-foreground" />
-                <Text className="font-sans text-sm text-foreground">{config.label}</Text>
-              </View>
-            );
-          })}
-          {labels.length == 1 && (
-            <View className="flex-row items-center gap-x-1">
-              <Link2 size={16} className="text-foreground" />
-              <Text
-                className="font-sans text-sm text-foreground underline"
-                onPress={() => Linking.openURL(item.wikipedia)}>
-                More on Wikipedia
-              </Text>
-            </View>
-          )}
+  return (
+    <View className="gap-y-2 rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <View>
+        <Text className="bold font-bold text-3xl text-accent">{item.name}</Text>
+        <View className="flex-row items-center gap-x-1">
+          <Home size={14} className="text-foreground" />
+          <Text className="font-sans text-sm text-foreground">{uniqueLocations.join(', ')}</Text>
+        </View>
+
+        <View className="flex-row items-center gap-x-1">
+          <MapPin size={14} className="text-foreground" />
+          <Text className="font-sans text-sm text-foreground">
+            {!userLocation
+              ? 'Distance unavailable'
+              : `${getDistanceFromLatLonInKm(
+                  userLocation.latitude,
+                  userLocation.longitude,
+                  item.latitude,
+                  item.longtitude
+                )} km away`}
+          </Text>
         </View>
       </View>
+      <ImageCarousel images={item.image_path} />
+      <View
+        className={`max-h-11 min-h-11 gap-x-3 gap-y-1 ${labels.length > 2 ? 'flex-row flex-wrap' : ''} `}>
+        {labels.map((label) => {
+          // Get config from map, or use default if slug doesn't exist
+          const config = CATEGORY_MAP[label];
+          const IconComponent = config.icon;
 
-      {/* <View className="flex-row items-center gap-x-2 align-middle">
-          <Link2 size={16} className="text-foreground" />
-          <Text
-            className="font-sans text-foreground underline"
-            onPress={() => Linking.openURL(item.wikipedia)}>
-            More on Wikipedia
-          </Text>
-        </View> */}
+          return (
+            <View key={label} className="flex-row items-center gap-x-1">
+              <IconComponent size={16} className="text-foreground" />
+              <Text className="font-sans text-sm text-foreground">{config.label}</Text>
+            </View>
+          );
+        })}
+        {labels.length == 1 && (
+          <View className="flex-row items-center gap-x-1">
+            <Link2 size={16} className="text-foreground" />
+            <Text
+              className="font-sans text-sm text-foreground underline"
+              onPress={() => Linking.openURL(item.wikipedia)}>
+              More on Wikipedia
+            </Text>
+          </View>
+        )}
+      </View>
+    </View>
 
-      {/* <ExpandableText summary={item.summary} /> */}
-    </>
+    // <View className="flex-row items-center gap-x-2 align-middle">
+    //     <Link2 size={16} className="text-foreground" />
+    //     <Text
+    //       className="font-sans text-foreground underline"
+    //       onPress={() => Linking.openURL(item.wikipedia)}>
+    //       More on Wikipedia
+    //     </Text>
+    //   </View>
+
+    // <ExpandableText summary={item.summary} />
   );
 }
