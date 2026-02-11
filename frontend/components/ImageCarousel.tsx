@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
-import { Dimensions, Text, View, Image, Pressable } from 'react-native';
+import { Dimensions, Text, View, Pressable } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import Carousel, { ICarouselInstance, Pagination } from 'react-native-reanimated-carousel';
+import { Image } from 'expo-image';
 
-const width = Dimensions.get('window').width;
+const R2_URL = process.env.EXPO_PUBLIC_R2_URL;
 
 export default function ImageCarousel({ images }: { images: string[] }) {
   const ref = useRef<ICarouselInstance>(null);
@@ -65,9 +66,11 @@ export default function ImageCarousel({ images }: { images: string[] }) {
             onProgressChange={progress}
             renderItem={({ item }) => (
               <Image
-                source={{ uri: item }}
+                source={{
+                  uri: `${R2_URL}/${item}`, // TODO: env not working
+                }}
                 style={{ width: '100%', height: '100%', borderRadius: 16 }}
-                resizeMode="cover"
+                contentFit="cover"
               />
             )}
           />
