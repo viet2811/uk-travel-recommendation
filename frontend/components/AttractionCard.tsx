@@ -2,9 +2,7 @@ import { Text, View, Image, Linking, ScrollView, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react';
 import {
   MapPin,
-  Link2,
   Volleyball,
-  Camera,
   LucideProps,
   Landmark,
   FerrisWheel,
@@ -13,9 +11,13 @@ import {
   Waves,
   PawPrint,
   Pyramid,
+  Home,
+  Users,
+  Link2,
 } from 'lucide-react-native';
 import { Attraction } from 'types/attraction';
 import ImageCarousel from './ImageCarousel';
+import { colors } from 'theme/colors';
 
 function ExpandableText({ summary }: { summary: string }) {
   const lineLimit = 3;
@@ -31,7 +33,6 @@ function ExpandableText({ summary }: { summary: string }) {
           className="font-sans leading-relaxed text-foreground"
           numberOfLines={isExpanded ? undefined : lineLimit}
           onTextLayout={(e) => {
-            // If the actual line count is greater than our limit, show the button
             if (e.nativeEvent.lines.length >= lineLimit && !isExpanded) {
               setShowSeeMore(true);
             }
@@ -40,11 +41,7 @@ function ExpandableText({ summary }: { summary: string }) {
         </Text>
 
         {showSeeMore && (
-          <Pressable
-            onPress={() => setIsExpanded(!isExpanded)}
-            className="mt-1" // Small margin to keep it tight to the text
-            hitSlop={10} // Makes it easier to tap
-          >
+          <Pressable onPress={() => setIsExpanded(!isExpanded)} className="mt-1" hitSlop={10}>
             <Text className="font-bold text-primary">{isExpanded ? 'Show less' : 'See more'}</Text>
           </Pressable>
         )}
@@ -60,7 +57,7 @@ type CategoryConfig = {
 
 const CATEGORY_MAP: Record<string, CategoryConfig> = {
   history_culture: { icon: Landmark, label: 'History & Culture' },
-  topspot: { icon: Camera, label: 'Tourist Topspot' },
+  topspot: { icon: Users, label: 'Tourist Attraction' },
   sports: { icon: Volleyball, label: 'Sports' },
   entertainment: { icon: FerrisWheel, label: 'Entertainment' },
   shopping: { icon: Handbag, label: 'Shopping' },
@@ -70,9 +67,9 @@ const CATEGORY_MAP: Record<string, CategoryConfig> = {
   architecture: { icon: Pyramid, label: 'Architecture' },
 };
 
-export default function AttractionView({ item }: { item: Attraction }) {
+export default function AttractionCard({ item }: { item: Attraction }) {
   const uniqueLocations = Array.from(
-    new Set([item.county, item.region, item.country].filter((part) => part !== ''))
+    new Set([item.county, item.country].filter((part) => part !== ''))
   );
   const labels = item.parentTypeLabel.split(',');
   return (
@@ -81,24 +78,42 @@ export default function AttractionView({ item }: { item: Attraction }) {
         <View>
           <Text className="bold font-bold text-3xl text-accent">{item.name}</Text>
           <View className="flex-row items-center gap-x-1">
-            <MapPin size={14} className="text-foreground" />
+            <Home size={14} className="text-foreground" />
             <Text className="font-sans text-sm text-foreground">{uniqueLocations.join(', ')}</Text>
+          </View>
+          <View className="flex-row items-center gap-x-1">
+            <MapPin size={14} className="text-foreground" />
+            <Text className="font-sans text-sm text-foreground">2 mile away</Text>
           </View>
         </View>
         <ImageCarousel images={item.image_path} />
-        {labels.map((label) => {
-          // Get config from map, or use default if slug doesn't exist
-          const config = CATEGORY_MAP[label];
-          const IconComponent = config.icon;
+        <View
+          className={`max-h-11 min-h-11 gap-x-3 gap-y-1 ${labels.length > 2 ? 'flex-row flex-wrap' : ''} `}>
+          {labels.map((label) => {
+            // Get config from map, or use default if slug doesn't exist
+            const config = CATEGORY_MAP[label];
+            const IconComponent = config.icon;
 
-          return (
-            <View key={label} className="flex-row items-center gap-x-2 align-middle">
-              <IconComponent size={16} className="text-foreground" />
-              <Text className="font-sans text-foreground">{config.label}</Text>
+            return (
+              <View key={label} className="flex-row items-center gap-x-1">
+                <IconComponent size={16} className="text-foreground" />
+                <Text className="font-sans text-sm text-foreground">{config.label}</Text>
+              </View>
+            );
+          })}
+          {labels.length == 1 && (
+            <View className="flex-row items-center gap-x-1">
+              <Link2 size={16} className="text-foreground" />
+              <Text
+                className="font-sans text-sm text-foreground underline"
+                onPress={() => Linking.openURL(item.wikipedia)}>
+                More on Wikipedia
+              </Text>
             </View>
-          );
-        })}
+          )}
+        </View>
       </View>
+
       {/* <View className="flex-row items-center gap-x-2 align-middle">
           <Link2 size={16} className="text-foreground" />
           <Text
