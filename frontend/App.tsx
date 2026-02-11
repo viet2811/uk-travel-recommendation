@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import './global.css';
 import BottomTabs from 'components/navigation/BottomTabs';
+import { LocationProvider } from 'context/LocationContext';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -28,8 +29,10 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <BottomTabs />
-    </NavigationContainer>
+    <LocationProvider>
+      <NavigationContainer>
+        <BottomTabs />
+      </NavigationContainer>
+    </LocationProvider>
   );
 }

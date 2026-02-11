@@ -18,6 +18,7 @@ import {
 import { Attraction } from 'types/attraction';
 import ImageCarousel from './ImageCarousel';
 import { colors } from 'theme/colors';
+import { useLocation } from 'context/LocationContext';
 
 function ExpandableText({ summary }: { summary: string }) {
   const lineLimit = 3;
@@ -67,11 +68,34 @@ const CATEGORY_MAP: Record<string, CategoryConfig> = {
   architecture: { icon: Pyramid, label: 'Architecture' },
 };
 
+// distanceHelper.ts
+function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const toRad = (value: number) => (value * Math.PI) / 180;
+
+  const R = 6371; // Radius of the Earth in km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.floor(R * c); // Distance in km
+}
+
 export default function AttractionCard({ item }: { item: Attraction }) {
   const uniqueLocations = Array.from(
     new Set([item.county, item.country].filter((part) => part !== ''))
   );
   const labels = item.parentTypeLabel.split(',');
+  const userLocation = useLocation();
+  if (!userLocation) return <Text>Loading location...</Text>;
+  const distanceToUser = getDistanceFromLatLonInKm(
+    userLocation.latitude,
+    userLocation.longitude,
+    item.latitude,
+    item.longtitude
+  );
+  console.log(distanceToUser);
   return (
     <>
       <View className="mt-4 gap-y-2 rounded-2xl border border-border bg-card p-6 shadow-sm">
@@ -83,7 +107,7 @@ export default function AttractionCard({ item }: { item: Attraction }) {
           </View>
           <View className="flex-row items-center gap-x-1">
             <MapPin size={14} className="text-foreground" />
-            <Text className="font-sans text-sm text-foreground">2 mile away</Text>
+            <Text className="font-sans text-sm text-foreground">{distanceToUser} km away</Text>
           </View>
         </View>
         <ImageCarousel images={item.image_path} />
