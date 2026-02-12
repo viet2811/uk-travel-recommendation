@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import './global.css';
 import BottomTabs from 'components/navigation/BottomTabs';
 import { LocationProvider } from 'context/LocationContext';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -30,9 +31,11 @@ export default function App() {
 
   return (
     <LocationProvider>
-      <NavigationContainer>
-        <BottomTabs />
-      </NavigationContainer>
+      <GestureHandlerRootView className="flex-1">
+        <NavigationContainer>
+          <BottomTabs />
+        </NavigationContainer>
+      </GestureHandlerRootView>
     </LocationProvider>
   );
 }
