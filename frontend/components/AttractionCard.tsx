@@ -83,19 +83,18 @@ function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon
 }
 
 export default function AttractionCard({ item }: { item: Attraction }) {
-  const uniqueLocations = Array.from(
-    new Set([item.county, item.country].filter((part) => part !== ''))
-  );
+  // ignore county as it could make the str long; case where there's only country(Gibraltar, Isle of Man)
+  const locationStr = item.county === '' ? item.country : `${item.county}, ${item.country}`;
   const labels = item.parentTypeLabel.split(',');
   const userLocation = useLocation();
 
   return (
     <View className="gap-y-2 rounded-2xl border border-border bg-card p-6 shadow-sm">
       <View>
-        <Text className="bold font-bold text-3xl text-accent">{item.name}</Text>
+        <Text className="bold font-bold text-xl text-accent">{item.name}</Text>
         <View className="flex-row items-center gap-x-1">
           <Home size={14} className="text-foreground" />
-          <Text className="font-sans text-sm text-foreground">{uniqueLocations.join(', ')}</Text>
+          <Text className="font-sans text-sm text-foreground">{locationStr}</Text>
         </View>
 
         <View className="flex-row items-center gap-x-1">
@@ -139,15 +138,6 @@ export default function AttractionCard({ item }: { item: Attraction }) {
         )}
       </View>
     </View>
-
-    // <View className="flex-row items-center gap-x-2 align-middle">
-    //     <Link2 size={16} className="text-foreground" />
-    //     <Text
-    //       className="font-sans text-foreground underline"
-    //       onPress={() => Linking.openURL(item.wikipedia)}>
-    //       More on Wikipedia
-    //     </Text>
-    //   </View>
 
     // <ExpandableText summary={item.summary} />
   );

@@ -3,6 +3,7 @@ import { Dimensions, Text, View, Pressable } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import Carousel, { ICarouselInstance, Pagination } from 'react-native-reanimated-carousel';
 import { Image } from 'expo-image';
+import { colors } from 'theme/colors';
 
 const R2_URL = process.env.EXPO_PUBLIC_R2_URL;
 
@@ -62,7 +63,7 @@ export default function ImageCarousel({ images }: { images: string[] }) {
             width={containerWidth}
             height={420}
             data={images}
-            enabled={images.length > 1}
+            enabled={false}
             onProgressChange={progress}
             renderItem={({ item }) => (
               <Image
@@ -88,14 +89,14 @@ export default function ImageCarousel({ images }: { images: string[] }) {
             borderRadius: 2,
           }}
           activeDotStyle={{
-            backgroundColor: '#cb4b16',
+            backgroundColor: colors.accent,
             width: 30,
           }}
           containerStyle={{ gap: 8, marginTop: 8 }}
           onPress={onPressPagination}
         />
       ) : (
-        <View className="h-3"></View>
+        <View className="h-3"></View> //Empty view to keep the gap
       )}
     </View>
   );
