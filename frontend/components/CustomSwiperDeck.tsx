@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { Attraction } from 'types/attraction';
 import { testItems } from './testItems';
-import AttractionCard from './AttractionCard';
+import AttractionCard, { AttractionCardRef } from './AttractionCard';
 import { useSharedValue } from 'react-native-reanimated';
 import { colors } from 'theme/colors';
 import { Ellipsis, Heart, X } from 'lucide-react-native';
@@ -10,6 +10,8 @@ import { Ellipsis, Heart, X } from 'lucide-react-native';
 export default function CustomSwiperDeck() {
   const [cardList, setCardList] = useState<Attraction[]>(testItems);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const topCardRef = useRef<AttractionCardRef>(null);
+
   const animatedValue = useSharedValue(0);
   const MAX_ITEM = 3;
   return (
@@ -20,6 +22,7 @@ export default function CustomSwiperDeck() {
         }
         return (
           <AttractionCard
+            ref={index === currentIndex ? topCardRef : undefined}
             item={attraction}
             key={index}
             index={index}
@@ -28,18 +31,24 @@ export default function CustomSwiperDeck() {
             currentIndex={currentIndex}
             animatedValue={animatedValue}
             setCurrentIndex={setCurrentIndex}
+            onSwipeLeft={() => console.log('Swipe left')}
+            onSwipeRight={() => console.log('Swipe right')}
           />
         );
       })}
 
       <View className="absolute bottom-6 w-1/2 flex-row justify-between self-center">
-        <Pressable className="rounded-full border border-border p-3">
+        <Pressable
+          className="rounded-full border border-border p-3"
+          onPress={() => topCardRef.current?.swipeLeft()}>
           <X size={32} color={colors.destructive} />
         </Pressable>
         <Pressable className="rounded-full border border-border p-3">
           <Ellipsis size={32} color={colors.border} />
         </Pressable>
-        <Pressable className="rounded-full border border-border p-3">
+        <Pressable
+          className="rounded-full border border-border p-3"
+          onPress={() => topCardRef.current?.swipeRight()}>
           <Heart size={32} color={colors.secondary} />
         </Pressable>
       </View>

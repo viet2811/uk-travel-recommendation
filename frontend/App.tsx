@@ -7,9 +7,15 @@ import './global.css';
 import BottomTabs from 'components/navigation/BottomTabs';
 import { LocationProvider } from 'context/LocationContext';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { configureReanimatedLogger } from 'react-native-reanimated';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
+
+configureReanimatedLogger({
+  strict: false,
+});
+
 export default function App() {
   const [loaded, error] = useFonts({
     Outfit: Outfit_400Regular,
