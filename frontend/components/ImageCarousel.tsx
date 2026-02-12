@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Dimensions, Text, View, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 import Carousel, { ICarouselInstance, Pagination } from 'react-native-reanimated-carousel';
 import { Image } from 'expo-image';

@@ -8,6 +8,7 @@ import BottomTabs from 'components/navigation/BottomTabs';
 import { LocationProvider } from 'context/LocationContext';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { configureReanimatedLogger } from 'react-native-reanimated';
+import WelcomeScreen from 'components/screens/WelcomeScreen';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -34,13 +35,18 @@ export default function App() {
   if (!loaded && !error) {
     return null;
   }
+  const loggedIn = false;
 
   return (
     <LocationProvider>
       <GestureHandlerRootView className="flex-1">
-        <NavigationContainer>
-          <BottomTabs />
-        </NavigationContainer>
+        {loggedIn ? (
+          <NavigationContainer>
+            <BottomTabs />
+          </NavigationContainer>
+        ) : (
+          <WelcomeScreen />
+        )}
       </GestureHandlerRootView>
     </LocationProvider>
   );
