@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
+import { Text } from './ui/Text';
 
 type ExpandableTextProps = {
   text: string;
@@ -16,7 +17,7 @@ function ExpandableText({ text, lineLimit }: ExpandableTextProps) {
 
       <View>
         <Text
-          className="font-sans leading-relaxed text-foreground"
+          className="leading-relaxed"
           numberOfLines={isExpanded ? undefined : lineLimit}
           onTextLayout={(e) => {
             if (e.nativeEvent.lines.length >= lineLimit && !isExpanded) {

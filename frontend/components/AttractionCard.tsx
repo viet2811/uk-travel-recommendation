@@ -1,4 +1,5 @@
-import { Text, View, Linking, useWindowDimensions } from 'react-native';
+import { View, Linking, useWindowDimensions } from 'react-native';
+import { Text } from './ui/Text';
 import {
   MapPin,
   Volleyball,
@@ -173,15 +174,15 @@ const AttractionCard = forwardRef<AttractionCardRef, AttractionCardProps>(
             animatedStyle,
           ]}>
           <View className="flex-1">
-            <Text className="bold font-bold text-xl text-accent">{item.name}</Text>
+            <Text className="bold font-bold text-xl !text-accent">{item.name}</Text>
             <View className="flex-row items-center gap-x-1">
               <Home size={14} className="text-foreground" />
-              <Text className="font-sans text-sm text-foreground">{locationStr}</Text>
+              <Text className="text-sm">{locationStr}</Text>
             </View>
 
             <View className="flex-row items-center gap-x-1">
               <MapPin size={14} className="text-foreground" />
-              <Text className="font-sans text-sm text-foreground">
+              <Text className="text-sm">
                 {!userLocation
                   ? 'Distance unavailable'
                   : `${getDistanceFromLatLonInKm(
@@ -204,16 +205,14 @@ const AttractionCard = forwardRef<AttractionCardRef, AttractionCardProps>(
               return (
                 <View key={label} className="flex-row items-center gap-x-1">
                   <IconComponent size={16} className="text-foreground" />
-                  <Text className="font-sans text-sm text-foreground">{config.label}</Text>
+                  <Text className=" text-sm">{config.label}</Text>
                 </View>
               );
             })}
             {labels.length == 1 && (
               <View className="flex-row items-center gap-x-1">
                 <Link2 size={16} className="text-foreground" />
-                <Text
-                  className="font-sans text-sm text-foreground underline"
-                  onPress={() => Linking.openURL(item.wikipedia)}>
+                <Text className="text-sm underline" onPress={() => Linking.openURL(item.wikipedia)}>
                   More on Wikipedia
                 </Text>
               </View>
