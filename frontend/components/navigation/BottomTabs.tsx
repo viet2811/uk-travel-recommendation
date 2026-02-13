@@ -5,7 +5,7 @@ import { colors } from 'theme/colors';
 
 const Tab = createBottomTabNavigator();
 
-export default function BottomTabs() {
+export default function BottomTabScreens() {
   return (
     <Tab.Navigator
       screenOptions={{

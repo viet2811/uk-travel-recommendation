@@ -9,6 +9,8 @@ import { LocationProvider } from 'context/LocationContext';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { configureReanimatedLogger } from 'react-native-reanimated';
 import WelcomeScreen from 'components/screens/WelcomeScreen';
+import { LoginScreen, RegisterScreen } from 'components/screens/UserAuthScreen';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -16,6 +18,8 @@ SplashScreen.preventAutoHideAsync();
 configureReanimatedLogger({
   strict: false,
 });
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   const [loaded, error] = useFonts({
@@ -36,17 +40,26 @@ export default function App() {
     return null;
   }
   const loggedIn = false;
+  const RootStack = () => {
+    return (
+      <Stack.Navigator
+        screenOptions={{ headerShown: false }}
+        initialRouteName={loggedIn ? 'Main' : 'Landing'}>
+        <Stack.Screen name="Landing" component={WelcomeScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Main" component={BottomTabs} />
+      </Stack.Navigator>
+    );
+  };
 
   return (
     <LocationProvider>
       <GestureHandlerRootView className="flex-1">
-        {loggedIn ? (
-          <NavigationContainer>
-            <BottomTabs />
-          </NavigationContainer>
-        ) : (
-          <WelcomeScreen />
-        )}
+        <NavigationContainer>
+          {/* <BottomTabs /> */}
+          <RootStack />
+        </NavigationContainer>
       </GestureHandlerRootView>
     </LocationProvider>
   );
