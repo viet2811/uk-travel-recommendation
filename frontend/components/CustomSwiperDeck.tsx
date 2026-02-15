@@ -1,22 +1,38 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { Attraction } from 'types/attraction';
-import { testItems } from './testItems';
 import AttractionCard, { AttractionCardRef } from './AttractionCard';
 import { useSharedValue } from 'react-native-reanimated';
 import { colors } from 'theme/colors';
 import { Ellipsis, Heart, X } from 'lucide-react-native';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { dislikeAttraction, getRecommendations, likeAttraction } from 'api/attraction';
+import { Text } from './ui/Text';
 
 export default function CustomSwiperDeck() {
-  const [cardList, setCardList] = useState<Attraction[]>(testItems);
+  //TODO: fetch new cards after 5 have been swiped
+  const { data: recommendations, isLoading } = useQuery<Attraction[]>({
+    queryKey: ['recommendations'],
+    queryFn: () => getRecommendations(),
+  });
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const topCardRef = useRef<AttractionCardRef>(null);
 
   const animatedValue = useSharedValue(0);
   const MAX_ITEM = 3;
+
+  if (!recommendations && isLoading) {
+    return (
+      <View className="flex-1">
+        <Text>Spinning or skeleton</Text>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1">
-      {cardList.map((attraction, index) => {
+      {recommendations?.map((attraction, index) => {
         if (index > currentIndex + MAX_ITEM || index < currentIndex) {
           return null;
         }
@@ -24,15 +40,15 @@ export default function CustomSwiperDeck() {
           <AttractionCard
             ref={index === currentIndex ? topCardRef : undefined}
             item={attraction}
-            key={index}
+            key={attraction.id}
             index={index}
-            dataLength={cardList.length}
+            dataLength={recommendations.length}
             maxVisibleItem={MAX_ITEM}
             currentIndex={currentIndex}
             animatedValue={animatedValue}
             setCurrentIndex={setCurrentIndex}
-            onSwipeLeft={() => console.log('Swipe left')}
-            onSwipeRight={() => console.log('Swipe right')}
+            onSwipeLeft={() => console.log('Dislike')} //dislikeAttraction(attraction.id)}
+            onSwipeRight={() => console.log('Like')} //likeAttraction(attraction.id)}
           />
         );
       })}
