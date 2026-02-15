@@ -1,38 +1,71 @@
-import { useEffect, useRef, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { useEffect, useRef, useState, useMemo } from 'react';
+import { Pressable, View, ActivityIndicator } from 'react-native';
 import { Attraction } from 'types/attraction';
 import AttractionCard, { AttractionCardRef } from './AttractionCard';
 import { useSharedValue } from 'react-native-reanimated';
 import { colors } from 'theme/colors';
 import { Ellipsis, Heart, X } from 'lucide-react-native';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query'; // Changed to Infinite
 import { dislikeAttraction, getRecommendations, likeAttraction } from 'api/attraction';
-import { Text } from './ui/Text';
 
 export default function CustomSwiperDeck() {
-  //TODO: fetch new cards after 5 have been swiped
-  const { data: recommendations, isLoading } = useQuery<Attraction[]>({
-    queryKey: ['recommendations'],
-    queryFn: () => getRecommendations(),
-  });
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const topCardRef = useRef<AttractionCardRef>(null);
-
   const animatedValue = useSharedValue(0);
   const MAX_ITEM = 3;
 
-  if (!recommendations && isLoading) {
+  // 1. Use useInfiniteQuery to handle batching
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+    queryKey: ['recommendations'],
+    queryFn: () => getRecommendations(), // Backend returns 10
+    getNextPageParam: (lastPage, allPages) => allPages.length, // Simple increment for page tracking
+    initialPageParam: 0,
+  });
+
+  // 2. Flatten the pages into a single array for the deck
+  const allRecommendations = useMemo(() => {
+    if (!data) return [];
+    const flatList = data.pages.flatMap((page) => page);
+
+    const seenIds = new Set();
+    return flatList.filter((attraction) => {
+      if (seenIds.has(attraction.id)) return false;
+      seenIds.add(attraction.id);
+      return true;
+    });
+  }, [data]);
+
+  // 3. Trigger fetch when 5 cards are left
+  useEffect(() => {
+    // 1. Guard: Don't do anything if we are already loading the initial data
+    if (isLoading) return;
+
+    // 2. Guard: Don't fetch if a request is already in flight
+    if (isFetchingNextPage) return;
+
+    // 3. Guard: Don't fetch if there is no more data to get
+    if (!hasNextPage) return;
+
+    const cardsRemaining = allRecommendations.length - currentIndex;
+
+    // 4. Only trigger if we are actually low on cards AND have cards to begin with
+    if (allRecommendations.length > 0 && cardsRemaining <= 5) {
+      fetchNextPage();
+    }
+  }, [currentIndex, allRecommendations.length, isFetchingNextPage, hasNextPage, isLoading]);
+
+  if (isLoading && allRecommendations.length === 0) {
     return (
-      <View className="flex-1">
-        <Text>Spinning or skeleton</Text>
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
     <View className="flex-1">
-      {recommendations?.map((attraction, index) => {
+      {allRecommendations.map((attraction, index) => {
+        // Keep the rendering optimization
         if (index > currentIndex + MAX_ITEM || index < currentIndex) {
           return null;
         }
@@ -40,18 +73,25 @@ export default function CustomSwiperDeck() {
           <AttractionCard
             ref={index === currentIndex ? topCardRef : undefined}
             item={attraction}
-            key={attraction.id}
+            key={`${attraction.id}`} // Composite key to avoid issues with duplicates
             index={index}
-            dataLength={recommendations.length}
+            dataLength={allRecommendations.length}
             maxVisibleItem={MAX_ITEM}
             currentIndex={currentIndex}
             animatedValue={animatedValue}
             setCurrentIndex={setCurrentIndex}
-            onSwipeLeft={() => console.log('Dislike')} //dislikeAttraction(attraction.id)}
-            onSwipeRight={() => console.log('Like')} //likeAttraction(attraction.id)}
+            onSwipeLeft={() => dislikeAttraction(attraction.id)}
+            onSwipeRight={() => likeAttraction(attraction.id)}
           />
         );
       })}
+
+      {/* Optional: Indicator that more cards are loading in the background */}
+      {isFetchingNextPage && (
+        <View className="absolute top-10 self-center rounded-full bg-white/80 p-2">
+          <ActivityIndicator size="small" color={colors.primary} />
+        </View>
+      )}
 
       <View className="absolute bottom-6 w-1/2 flex-row justify-between self-center">
         <Pressable
