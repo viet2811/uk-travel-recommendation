@@ -1,20 +1,33 @@
-import { Link } from '@react-navigation/native';
+import { Link, useNavigation } from '@react-navigation/native';
 import { Text } from 'components/ui/Text';
+import { useAuth } from 'context/AuthContext';
 import { useState } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export function LoginScreen() {
-  return <UserAuthScreen login />;
+  return <UserAuthScreen loginView />;
 }
 
 export function RegisterScreen() {
-  return <UserAuthScreen login={false} />;
+  return <UserAuthScreen loginView={false} />;
 }
 
-function UserAuthScreen({ login }: { login: boolean }) {
+function UserAuthScreen({ loginView }: { loginView: boolean }) {
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
+
+  const { login } = useAuth();
+  const { navigate } = useNavigation();
+  const handleLogin = async () => {
+    const { success, message } = await login(usernameInput, passwordInput);
+    if (!success) {
+      console.log(message);
+    } else {
+      navigate('Main');
+    }
+    //else: navigate to app stack, probably already automatically
+  };
   return (
     <KeyboardAwareScrollView
       className="flex-1 bg-background"
@@ -24,7 +37,9 @@ function UserAuthScreen({ login }: { login: boolean }) {
       keyboardShouldPersistTaps="handled">
       <View className="w-5/6 gap-4 rounded border border-border bg-card p-6">
         <View>
-          <Text className="mb-1 font-bold text-2xl">{login ? 'Log in' : 'Create an account'}</Text>
+          <Text className="mb-1 font-bold text-2xl">
+            {loginView ? 'Log in' : 'Create an account'}
+          </Text>
           <Text>To discover and find your attraction</Text>
         </View>
 
@@ -48,13 +63,15 @@ function UserAuthScreen({ login }: { login: boolean }) {
             secureTextEntry
           />
         </View>
-        <Pressable className="mt-3 rounded border border-border bg-accent px-12 py-3">
+        <Pressable
+          className="mt-3 rounded border border-border bg-accent px-12 py-3"
+          onPress={handleLogin}>
           <Text className="text-center font-bold text-secondary-foreground">
-            {login ? 'Log in' : 'Create account'}
+            {loginView ? 'Log in' : 'Create account'}
           </Text>
         </Pressable>
 
-        {login ? (
+        {loginView ? (
           <Text className="text-center">
             Don't have an account?{' '}
             <Link screen="Register">

@@ -2,7 +2,7 @@ export type RootStackParamList = {
   Landing: undefined;
   Register: undefined;
   Login: undefined;
-  Discovery: undefined;
+  Main: undefined;
 };
 
 declare global {
