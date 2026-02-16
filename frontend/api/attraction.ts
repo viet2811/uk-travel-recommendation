@@ -30,3 +30,8 @@ export async function likeAttraction(id: string) {
 export async function dislikeAttraction(id: string) {
   await axiosInstance.post(`/recommendations/dislike/${id}`);
 }
+
+export async function getLikedAttraction() {
+  const response = await axiosInstance.get('/recommendations/history/liked');
+  return response.data;
+}

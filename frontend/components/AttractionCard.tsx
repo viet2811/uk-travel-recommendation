@@ -1,20 +1,6 @@
 import { View, Linking, useWindowDimensions } from 'react-native';
 import { Text } from './ui/Text';
-import {
-  MapPin,
-  Volleyball,
-  LucideProps,
-  Landmark,
-  FerrisWheel,
-  Handbag,
-  Leaf,
-  Waves,
-  PawPrint,
-  Pyramid,
-  Home,
-  Users,
-  Link2,
-} from 'lucide-react-native';
+import { MapPin, Home, Link2 } from 'lucide-react-native';
 import { Attraction } from 'types/attraction';
 import ImageCarousel from './ImageCarousel';
 import { useLocation } from 'context/LocationContext';
@@ -28,23 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { forwardRef, useImperativeHandle } from 'react';
-
-type CategoryConfig = {
-  icon: React.ComponentType<LucideProps>;
-  label: string;
-};
-
-const CATEGORY_MAP: Record<string, CategoryConfig> = {
-  history_culture: { icon: Landmark, label: 'History & Culture' },
-  topspot: { icon: Users, label: 'Tourist Attraction' },
-  sports: { icon: Volleyball, label: 'Sports' },
-  entertainment: { icon: FerrisWheel, label: 'Entertainment' },
-  shopping: { icon: Handbag, label: 'Shopping' },
-  natural: { icon: Leaf, label: 'Nature' },
-  sea: { icon: Waves, label: 'Sea' },
-  animals: { icon: PawPrint, label: 'Animals' },
-  architecture: { icon: Pyramid, label: 'Architecture' },
-};
+import { CATEGORY_MAP } from './ui/CategoryIcon';
 
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const toRad = (value: number) => (value * Math.PI) / 180;
@@ -194,7 +164,7 @@ const AttractionCard = forwardRef<AttractionCardRef, AttractionCardProps>(
               </Text>
             </View>
           </View>
-          <ImageCarousel images={item.image_path} />
+          <ImageCarousel images={item.image_path} height={420} />
           <View
             className={`max-h-11 min-h-11 gap-x-3 gap-y-1 ${labels.length > 2 ? 'flex-row flex-wrap' : ''} `}>
             {labels.map((label) => {

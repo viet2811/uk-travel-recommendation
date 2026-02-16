@@ -7,7 +7,7 @@ import { colors } from 'theme/colors';
 
 const R2_URL = process.env.EXPO_PUBLIC_R2_URL;
 
-export default function ImageCarousel({ images }: { images: string[] }) {
+export default function ImageCarousel({ images, height }: { images: string[]; height: number }) {
   const ref = useRef<ICarouselInstance>(null);
   const progress = useSharedValue<number>(0);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -31,7 +31,7 @@ export default function ImageCarousel({ images }: { images: string[] }) {
       className="w-full items-center"
       onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}>
       {containerWidth > 0 && (
-        <View style={{ width: containerWidth, height: 420 }}>
+        <View style={{ width: containerWidth, height: height }}>
           {/* Left clickable area */}
           <Pressable
             onPress={goPrev}
@@ -61,14 +61,14 @@ export default function ImageCarousel({ images }: { images: string[] }) {
           <Carousel
             ref={ref}
             width={containerWidth}
-            height={420}
+            height={height}
             data={images}
             enabled={false}
             onProgressChange={progress}
             renderItem={({ item }) => (
               <Image
                 source={{
-                  uri: `${R2_URL}/${item}`, // TODO: env not working
+                  uri: `${R2_URL}/${item}`,
                 }}
                 style={{ width: '100%', height: '100%', borderRadius: 16 }}
                 contentFit="cover"

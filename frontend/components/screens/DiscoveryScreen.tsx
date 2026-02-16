@@ -1,5 +1,4 @@
 import { View } from 'react-native';
-import { testItems } from 'components/testItems';
 import CustomSwiperDeck from 'components/CustomSwiperDeck';
 
 export default function DiscoveryScreen() {
