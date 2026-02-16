@@ -5,7 +5,7 @@ import AttractionCard, { AttractionCardRef } from './AttractionCard';
 import { useSharedValue } from 'react-native-reanimated';
 import { colors } from 'theme/colors';
 import { Ellipsis, Heart, X } from 'lucide-react-native';
-import { useInfiniteQuery } from '@tanstack/react-query'; // Changed to Infinite
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { dislikeAttraction, getRecommendations, likeAttraction } from 'api/attraction';
 
 export default function CustomSwiperDeck() {
@@ -14,19 +14,20 @@ export default function CustomSwiperDeck() {
   const animatedValue = useSharedValue(0);
   const MAX_ITEM = 3;
 
-  // 1. Use useInfiniteQuery to handle batching
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery<
+    Attraction[]
+  >({
     queryKey: ['recommendations'],
-    queryFn: () => getRecommendations(), // Backend returns 10
+    queryFn: () => getRecommendations(),
     getNextPageParam: (lastPage, allPages) => allPages.length, // Simple increment for page tracking
     initialPageParam: 0,
   });
 
-  // 2. Flatten the pages into a single array for the deck
   const allRecommendations = useMemo(() => {
     if (!data) return [];
     const flatList = data.pages.flatMap((page) => page);
 
+    // Avoid repeating the remain 5 items, which is not recorded in the backend
     const seenIds = new Set();
     return flatList.filter((attraction) => {
       if (seenIds.has(attraction.id)) return false;
@@ -35,20 +36,11 @@ export default function CustomSwiperDeck() {
     });
   }, [data]);
 
-  // 3. Trigger fetch when 5 cards are left
+  // Trigger fetch when 5 cards are left
   useEffect(() => {
-    // 1. Guard: Don't do anything if we are already loading the initial data
-    if (isLoading) return;
-
-    // 2. Guard: Don't fetch if a request is already in flight
-    if (isFetchingNextPage) return;
-
-    // 3. Guard: Don't fetch if there is no more data to get
-    if (!hasNextPage) return;
+    if (isLoading || isFetchingNextPage || !hasNextPage) return; //Avoid refetching 3x times at the beginning
 
     const cardsRemaining = allRecommendations.length - currentIndex;
-
-    // 4. Only trigger if we are actually low on cards AND have cards to begin with
     if (allRecommendations.length > 0 && cardsRemaining <= 5) {
       fetchNextPage();
     }
@@ -65,7 +57,6 @@ export default function CustomSwiperDeck() {
   return (
     <View className="flex-1">
       {allRecommendations.map((attraction, index) => {
-        // Keep the rendering optimization
         if (index > currentIndex + MAX_ITEM || index < currentIndex) {
           return null;
         }
@@ -73,7 +64,7 @@ export default function CustomSwiperDeck() {
           <AttractionCard
             ref={index === currentIndex ? topCardRef : undefined}
             item={attraction}
-            key={`${attraction.id}`} // Composite key to avoid issues with duplicates
+            key={attraction.id}
             index={index}
             dataLength={allRecommendations.length}
             maxVisibleItem={MAX_ITEM}
@@ -86,13 +77,6 @@ export default function CustomSwiperDeck() {
         );
       })}
 
-      {/* Optional: Indicator that more cards are loading in the background */}
-      {isFetchingNextPage && (
-        <View className="absolute top-10 self-center rounded-full bg-white/80 p-2">
-          <ActivityIndicator size="small" color={colors.primary} />
-        </View>
-      )}
-
       <View className="absolute bottom-6 w-1/2 flex-row justify-between self-center">
         <Pressable
           className="rounded-full border border-border p-3"
@@ -100,6 +84,7 @@ export default function CustomSwiperDeck() {
           <X size={32} color={colors.destructive} />
         </Pressable>
         <Pressable className="rounded-full border border-border p-3">
+          {/* TODO: show summary  */}
           <Ellipsis size={32} color={colors.border} />
         </Pressable>
         <Pressable
