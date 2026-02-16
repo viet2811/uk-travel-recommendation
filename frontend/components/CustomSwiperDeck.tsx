@@ -5,7 +5,7 @@ import AttractionCard, { AttractionCardRef } from './AttractionCard';
 import { useSharedValue } from 'react-native-reanimated';
 import { colors } from 'theme/colors';
 import { Ellipsis, Heart, X } from 'lucide-react-native';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dislikeAttraction, getRecommendations, likeAttraction } from 'api/attraction';
 
 export default function CustomSwiperDeck() {
@@ -14,6 +14,7 @@ export default function CustomSwiperDeck() {
   const animatedValue = useSharedValue(0);
   const MAX_ITEM = 3;
 
+  const queryClient = useQueryClient();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery<
     Attraction[]
   >({
@@ -21,6 +22,11 @@ export default function CustomSwiperDeck() {
     queryFn: () => getRecommendations(),
     getNextPageParam: (lastPage, allPages) => allPages.length, // Simple increment for page tracking
     initialPageParam: 0,
+  });
+
+  const likeMutation = useMutation({
+    mutationFn: (id: string) => likeAttraction(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['likedHistory'] }),
   });
 
   const allRecommendations = useMemo(() => {
@@ -72,7 +78,7 @@ export default function CustomSwiperDeck() {
             animatedValue={animatedValue}
             setCurrentIndex={setCurrentIndex}
             onSwipeLeft={() => dislikeAttraction(attraction.id)}
-            onSwipeRight={() => likeAttraction(attraction.id)}
+            onSwipeRight={() => likeMutation.mutate(attraction.id)}
           />
         );
       })}

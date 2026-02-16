@@ -1,5 +1,5 @@
 import { Text } from 'components/ui/Text';
-import { ChevronDown, Globe, LayoutList, Map } from 'lucide-react-native';
+import { Globe, LayoutList, Map } from 'lucide-react-native';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { Attraction } from 'types/attraction';
 import { Image } from 'expo-image';

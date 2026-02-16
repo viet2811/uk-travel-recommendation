@@ -1,8 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DiscoveryScreen from '../screens/DiscoveryScreen';
-import { Binoculars, Heart, Settings } from 'lucide-react-native';
+import { Binoculars, Heart, Settings, User } from 'lucide-react-native';
 import { colors } from 'theme/colors';
 import LikeHistoryScreen from 'components/screens/LikeHistoryScreen';
+import SettingScreen from 'components/screens/SettingScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -43,10 +44,12 @@ export default function BottomTabScreens() {
         }}
       />
       <Tab.Screen
-        name="Settings"
-        component={DiscoveryScreen}
+        name="Profile"
+        component={SettingScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
+          tabBarIcon: ({ focused, color, size }) => (
+            <User color={color} size={size} fill={focused ? color : 'transparent'} />
+          ),
         }}
       />
     </Tab.Navigator>

@@ -3,6 +3,9 @@ export type RootStackParamList = {
   Register: undefined;
   Login: undefined;
   Main: undefined;
+  Liked: undefined;
+  Discovery: undefined;
+  Profile: undefined;
 };
 
 declare global {
