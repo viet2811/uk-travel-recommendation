@@ -1,5 +1,5 @@
 import { Text } from 'components/ui/Text';
-import { ChevronDown, Map } from 'lucide-react-native';
+import { ChevronDown, Globe, LayoutList, Map } from 'lucide-react-native';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { Attraction } from 'types/attraction';
 import { Image } from 'expo-image';
@@ -7,22 +7,8 @@ import { CATEGORY_MAP } from 'components/ui/CategoryIcon';
 import { colors } from 'theme/colors';
 import { useQuery } from '@tanstack/react-query';
 import { getLikedAttraction } from 'api/attraction';
-
-const testData = {
-  id: 'Q1473348',
-  image_path: ['images/Q1473348.webp', 'images/Q1473348_1.webp'],
-  name: 'Glasgow Cathedral',
-  parentTypeLabel: 'history_culture,architecture,topspot',
-  typeLabel: 'cathedral, tourist attraction, Scottish civil parish',
-  latitude: 55.8631,
-  longtitude: -4.2346,
-  wikipedia: 'https://en.wikipedia.org/wiki/Glasgow_Cathedral',
-  summary:
-    "Glasgow Cathedral (Scottish Gaelic: Cathair-eaglais Ghlaschu) is a parish church of the Church of Scotland in Glasgow, Scotland. It was the cathedral church  of the Archbishop of Glasgow, and the mother church of the Archdiocese of Glasgow and the province of Glasgow, from the 12th century until the Scottish Reformation in the 16th century. It is the oldest cathedral in mainland Scotland and the oldest building in Glasgow. With St Magnus Cathedral in Orkney, they are the only medieval cathedrals in Scotland to have survived the Reformation virtually intact. The medieval Bishop's Castle stood to the west of the cathedral until 1789.  Although notionally it lies within the Townhead area of the city, the Cathedral grounds and the neighbouring Necropolis are considered to be their own district within the city.\nThe cathedral is dedicated to Saint Mungo (also known as Kentigern), the patron saint of Glasgow, whose tomb lies at the centre of the building's Lower Church. The first stone cathedral was dedicated in 1136, in the presence of David I. Fragments of this building have been found beneath the structure of the present cathedral, which was dedicated in 1197, although much of the present cathedral dates from a major rebuilding in the 13th century. Following its foundation in 1451, the University of Glasgow held its first classes within the cathedral's chapter house. After the Reformation, Glasgow Cathedral was internally partitioned to serve three separate congregations (Inner High, Outer High and Barony). The early 19th century saw a growing appreciation of the cathedral's medieval architecture, and by 1835 both the Outer High and Barony congregations had moved elsewhere in the city, allowing the restoration of the cathedral to something approaching its former glory.\n\nGlasgow Cathedral has been Crown property since 1587. The entire cathedral building passed into the care of the state in 1857, and today it is the responsibility of Historic Environment Scotland. The congregation is today part of the Church of Scotland's Presbytery of Glasgow.",
-  county: 'Glasgow City',
-  region: 'Scotland',
-  country: 'Scotland',
-};
+import { useState } from 'react';
+import { Dropdown } from 'react-native-element-dropdown';
 
 const R2_URL = process.env.EXPO_PUBLIC_R2_URL;
 
@@ -88,30 +74,116 @@ function HistoryCard({ item }: { item: Attraction }) {
   );
 }
 
+function ViewAll({ items }: { items: Attraction[] }) {
+  return (
+    <View className="mb-32 flex-row flex-wrap justify-between gap-2">
+      {items.map((attraction) => (
+        <HistoryCard item={attraction} key={`${attraction.id}-historyCard`} />
+      ))}
+    </View>
+  );
+}
+
+type ViewDropdownProps = {
+  curView: string;
+  setCurView: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const viewOption = [
+  { label: 'List All', value: 'all' },
+  { label: 'By County', value: 'county' },
+  { label: 'By Region', value: 'region' },
+  { label: 'By Country', value: 'country' },
+  { label: 'Map View', value: 'map' },
+];
+
+function ViewDropdown({ curView, setCurView }: ViewDropdownProps) {
+  return (
+    <View className="w-48">
+      <Dropdown
+        data={viewOption}
+        value={curView}
+        labelField="label"
+        valueField="value"
+        onChange={(item) => setCurView(item.value)}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.input,
+          backgroundColor: colors.card,
+          borderRadius: 4,
+          paddingVertical: 8,
+          paddingHorizontal: 16,
+        }}
+        selectedTextStyle={{
+          fontSize: 14,
+          color: colors.foreground,
+          fontFamily: 'Outfit',
+          paddingLeft: 6,
+        }}
+        placeholderStyle={{
+          color: colors.foreground,
+          fontFamily: 'Outfit',
+        }}
+        containerStyle={{
+          backgroundColor: colors.card,
+          borderColor: colors.border,
+          borderRadius: 8,
+          paddingVertical: 6,
+          paddingHorizontal: 6,
+        }}
+        renderItem={(item) => {
+          const isSelected = item.value === curView;
+          const Icon =
+            item.value === 'map'
+              ? Map
+              : ['region', 'county', 'country'].includes(item.value)
+                ? Globe
+                : LayoutList;
+          return (
+            <View
+              className={`flex-row items-center rounded px-2 py-2 ${isSelected ? 'bg-accent' : 'bg-card'}`}>
+              <Icon
+                size={16}
+                color={isSelected ? colors['accent-foreground'] : colors.foreground}
+              />
+
+              <Text className={`ml-2 ${isSelected ? 'text-accent-foreground' : 'text-foreground'}`}>
+                {item.label}
+              </Text>
+            </View>
+          );
+        }}
+        renderLeftIcon={() => {
+          if (!curView) return null;
+          const Icon =
+            curView === 'map'
+              ? Map
+              : ['region', 'county', 'country'].includes(curView)
+                ? Globe
+                : LayoutList;
+          return <Icon size={16} />;
+        }}
+      />
+    </View>
+  );
+}
+
 export default function LikeHistoryScreen() {
   const { data: attractions, isLoading } = useQuery<Attraction[]>({
     queryKey: ['likedHistory'],
     queryFn: getLikedAttraction,
   });
+
+  const [curView, setCurView] = useState('all');
+
   return (
     <ScrollView className="flex-1 bg-background px-6 pb-10 pt-20">
       <View className="mb-6 flex-row items-center justify-between">
-        <Text className="font-bold text-3xl !text-accent">Liked Attractions</Text>
-        {/* TODO: Dropdown box */}
-        <View className="flex-row items-center rounded border border-input bg-card px-4 py-2">
-          <Text className="mr-1 text-lg">View</Text>
-
-          <View className="mt-1">
-            <ChevronDown size={20} />
-          </View>
-        </View>
+        <Text className="font-bold text-2xl !text-accent">Liked Attractions</Text>
+        <ViewDropdown curView={curView} setCurView={setCurView} />
       </View>
       {attractions && !isLoading ? (
-        <View className="mb-32 flex-row flex-wrap justify-between gap-2">
-          {attractions.map((attraction) => (
-            <HistoryCard item={attraction} key={`${attraction.id}-historyCard`} />
-          ))}
-        </View>
+        <ViewAll items={attractions} />
       ) : (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
