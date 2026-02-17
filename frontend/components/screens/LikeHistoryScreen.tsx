@@ -147,7 +147,8 @@ function ViewDropdown({ curView, setCurView }: ViewDropdownProps) {
                 color={isSelected ? colors['accent-foreground'] : colors.foreground}
               />
 
-              <Text className={`ml-2 ${isSelected ? 'text-accent-foreground' : 'text-foreground'}`}>
+              <Text
+                className={`ml-2 ${isSelected ? '!text-accent-foreground' : 'text-foreground'}`}>
                 {item.label}
               </Text>
             </View>

@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { axiosInstance } from 'api/axios';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
@@ -15,6 +16,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   const login = async (username: string, password: string) => {
     try {
@@ -51,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await SecureStore.deleteItemAsync('accessToken');
     await SecureStore.deleteItemAsync('refreshToken');
     setIsAuthenticated(false);
+    queryClient.clear();
   };
 
   // Restore on app open

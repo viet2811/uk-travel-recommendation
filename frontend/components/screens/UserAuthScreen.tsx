@@ -1,9 +1,12 @@
 import { Link, useNavigation } from '@react-navigation/native';
+import { useMutation } from '@tanstack/react-query';
+import { registerUser } from 'api/user';
 import { Text } from 'components/ui/Text';
 import { useAuth } from 'context/AuthContext';
 import { useState } from 'react';
 import { View, TextInput, Pressable } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { colors } from 'theme/colors';
 
 export function LoginScreen() {
   return <UserAuthScreen loginView />;
@@ -19,15 +22,30 @@ function UserAuthScreen({ loginView }: { loginView: boolean }) {
 
   const { login } = useAuth();
   const { navigate } = useNavigation();
-  const handleLogin = async () => {
+  const handleLogin = async (onSuccess: () => void) => {
     const { success, message } = await login(usernameInput, passwordInput);
     if (!success) {
       console.log(message);
     } else {
-      navigate('Main');
+      onSuccess();
     }
-    //else: navigate to app stack, probably already automatically
   };
+  const registerMutation = useMutation({
+    mutationFn: registerUser,
+    onSuccess: () => {
+      handleLogin(() => {
+        navigate('Preference');
+      });
+    },
+  });
+  const handleRegister = async () => {
+    if (usernameInput.length < 6 || passwordInput.length < 8) {
+      console.log('Enter correct length');
+      return;
+    }
+    registerMutation.mutate({ username: usernameInput, password: passwordInput });
+  };
+
   return (
     <KeyboardAwareScrollView
       className="flex-1 bg-background"
@@ -50,6 +68,12 @@ function UserAuthScreen({ loginView }: { loginView: boolean }) {
             className="border border-border p-4"
             value={usernameInput}
             onChangeText={setUsernameInput}
+            maxLength={20}
+            autoFocus
+            style={{
+              fontFamily: 'Outfit',
+            }}
+            cursorColor={colors.accent}
           />
         </View>
 
@@ -61,11 +85,15 @@ function UserAuthScreen({ loginView }: { loginView: boolean }) {
             value={passwordInput}
             onChangeText={setPasswordInput}
             secureTextEntry
+            style={{
+              fontFamily: 'Outfit',
+            }}
+            cursorColor={colors.accent}
           />
         </View>
         <Pressable
           className="mt-3 rounded border border-border bg-accent px-12 py-3"
-          onPress={handleLogin}>
+          onPress={loginView ? () => handleLogin(() => navigate('Main')) : handleRegister}>
           <Text className="text-center font-bold text-secondary-foreground">
             {loginView ? 'Log in' : 'Create account'}
           </Text>

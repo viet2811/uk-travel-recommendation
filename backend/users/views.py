@@ -26,8 +26,9 @@ class SetUserReferencesView(APIView):
         # Extra caution if front-end go wrong
         if not mhe:
             return Response({"error": "Missing preferences in request body"}, status=status.HTTP_400_BAD_REQUEST)
+        if type(mhe) != list or (type(mhe)==list and len(mhe) != 9):
+            return Response({"error": "preferences need to be a list with the length of 9"}, status=status.HTTP_400_BAD_REQUEST)
         # Convert into an actual list
-        mhe = json.loads(mhe)
         UserProfile.objects.filter(user=request.user).update(labelMHE=mhe)
         return Response(status=status.HTTP_200_OK)
     
