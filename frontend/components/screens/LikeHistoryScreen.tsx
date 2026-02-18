@@ -2,87 +2,14 @@ import { Text } from 'components/ui/Text';
 import { Globe, LayoutList, Map } from 'lucide-react-native';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { Attraction } from 'types/attraction';
-import { Image } from 'expo-image';
-import { CATEGORY_MAP } from 'components/ui/CategoryIcon';
+
 import { colors } from 'theme/colors';
 import { useQuery } from '@tanstack/react-query';
 import { getLikedAttraction } from 'api/attraction';
 import { useState } from 'react';
 import { Dropdown } from 'react-native-element-dropdown';
-
-const R2_URL = process.env.EXPO_PUBLIC_R2_URL;
-
-const countryFlags: Record<string, any> = {
-  England: require('../../assets/images/england.png'),
-  Scotland: require('../../assets/images/scotland.png'),
-  Wales: require('../../assets/images/wales.png'),
-  'Northern Ireland': require('../../assets/images/northern-ireland.png'),
-  'Isle of Man': require('../../assets/images/isle_of_man.png'),
-  Gibraltar: require('../../assets/images/gibraltar.png'),
-};
-
-function HistoryCard({ item }: { item: Attraction }) {
-  const labels = item.parentTypeLabel.split(',');
-
-  return (
-    <View className="h-[300px] w-[49%] overflow-hidden rounded-2xl border border-border bg-card pb-2">
-      <Image
-        source={{
-          uri: `${R2_URL}/${item.image_path[0]}`,
-        }}
-        style={{ width: '100%', height: '75%' }}
-        contentFit="cover"
-      />
-      <View className="mb-2 px-3 pt-2">
-        {/* TODO: With long name, fade? */}
-        <Text className="font-bold text-base !text-accent" numberOfLines={1} ellipsizeMode="tail">
-          {item.name}
-        </Text>
-        <Text className="text-sm" numberOfLines={1} ellipsizeMode="tail">
-          {item.county !== '' ? item.county : item.country}
-        </Text>
-        <View className="mt-1.5 flex-row justify-between">
-          <Image
-            source={countryFlags[item.country]}
-            style={{
-              height: 16,
-              width: 24,
-              borderWidth: 1,
-              borderColor: colors.foreground,
-              borderRadius: 2,
-            }}
-            contentFit="cover"
-          />
-          <View className="flex-row gap-1">
-            {labels.map((label) => {
-              // Get config from map, or use default if slug doesn't exist
-              const config = CATEGORY_MAP[label];
-              const IconComponent = config.icon;
-
-              return (
-                <IconComponent
-                  size={16}
-                  className="text-foreground"
-                  key={`${item.id}-${label}_icon`}
-                />
-              );
-            })}
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function ViewAll({ items }: { items: Attraction[] }) {
-  return (
-    <View className="mb-32 flex-row flex-wrap justify-between gap-2">
-      {items.map((attraction) => (
-        <HistoryCard item={attraction} key={`${attraction.id}-historyCard`} />
-      ))}
-    </View>
-  );
-}
+import ListAllView from 'components/history/ListAllView';
+import HistoryMapView from 'components/history/HistoryMapView';
 
 type ViewDropdownProps = {
   curView: string;
@@ -90,11 +17,11 @@ type ViewDropdownProps = {
 };
 
 const viewOption = [
-  { label: 'List All', value: 'all' },
+  { label: 'Map View', value: 'map' },
   { label: 'By County', value: 'county' },
   { label: 'By Region', value: 'region' },
   { label: 'By Country', value: 'country' },
-  { label: 'Map View', value: 'map' },
+  { label: 'List All', value: 'all' },
 ];
 
 function ViewDropdown({ curView, setCurView }: ViewDropdownProps) {
@@ -175,21 +102,32 @@ export default function LikeHistoryScreen() {
     queryFn: getLikedAttraction,
   });
 
-  const [curView, setCurView] = useState('all');
+  const [curView, setCurView] = useState('map');
 
   return (
-    <ScrollView className="flex-1 bg-background px-6 pb-10 pt-20">
-      <View className="mb-6 flex-row items-center justify-between">
-        <Text className="font-bold text-2xl !text-accent">Liked Attractions</Text>
-        <ViewDropdown curView={curView} setCurView={setCurView} />
-      </View>
+    <View className="flex-1 bg-background">
       {attractions && !isLoading ? (
-        <ViewAll items={attractions} />
+        curView === 'all' ? (
+          <ListAllView items={attractions} />
+        ) : curView === 'map' ? (
+          <HistoryMapView items={attractions} />
+        ) : (
+          ''
+        )
       ) : (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
-    </ScrollView>
+      <View className="absolute left-0 right-0 top-0 flex-row items-center justify-between px-6 pt-20">
+        {curView !== 'map' && (
+          <Text className="font-bold text-2xl !text-accent">Liked Attractions</Text>
+        )}
+
+        <View className={`${curView === 'map' ? 'ml-auto' : ''}`}>
+          <ViewDropdown curView={curView} setCurView={setCurView} />
+        </View>
+      </View>
+    </View>
   );
 }
