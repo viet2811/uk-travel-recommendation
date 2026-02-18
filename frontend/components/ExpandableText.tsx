@@ -7,7 +7,7 @@ type ExpandableTextProps = {
   lineLimit: number;
 };
 
-function ExpandableText({ text, lineLimit }: ExpandableTextProps) {
+export default function ExpandableText({ text, lineLimit }: ExpandableTextProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showSeeMore, setShowSeeMore] = useState(false);
 
