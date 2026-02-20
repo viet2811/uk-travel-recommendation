@@ -101,11 +101,9 @@ const HistoryMapView = memo(({ items }: { items: Attraction[] }) => {
     (props: any) => (
       <BottomSheetBackdrop
         {...props}
-        // index -1 means completely closed
         disappearsOnIndex={-1}
         appearsOnIndex={0}
         opacity={0.1}
-        // This is the key line:
         pressBehavior="close"
       />
     ),
@@ -114,15 +112,12 @@ const HistoryMapView = memo(({ items }: { items: Attraction[] }) => {
 
   const handleMarkerPress = (item: Attraction) => {
     setSelectedItem(item);
-    // Snap to the first point (25%) or use .expand() for the top
-    bottomSheetRef.current?.snapToIndex(1);
+    bottomSheetRef.current?.snapToIndex(1); // Snap to the 50%
 
     const targetLatDelta = Math.min(currentRegion.latitudeDelta, 0.5);
-    // 2. Maintain aspect ratio for Longitude Delta
-    // We multiply by the current aspect ratio to prevent "stretching" the map
+    // Maintain aspect ratio for Longitude Delta
     const aspectRatio = currentRegion.longitudeDelta / currentRegion.latitudeDelta;
     const targetLngDelta = targetLatDelta * aspectRatio;
-    // Optional: Center map on the marker
     mapRef.current?.animateToRegion({
       latitude: item.latitude - targetLatDelta * 0.28, // Offset slightly so the sheet doesn't cover the marker
       longitude: item.longtitude,

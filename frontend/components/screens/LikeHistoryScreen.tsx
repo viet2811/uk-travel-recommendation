@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { Dropdown } from 'react-native-element-dropdown';
 import ListAllView from 'components/history/ListAllView';
 import HistoryMapView from 'components/history/HistoryMapView';
+import GeoFilterView from 'components/history/GeoFilterView';
 
 type ViewDropdownProps = {
   curView: string;
@@ -102,7 +103,7 @@ export default function LikeHistoryScreen() {
     queryFn: getLikedAttraction,
   });
 
-  const [curView, setCurView] = useState('map');
+  const [curView, setCurView] = useState('country');
 
   return (
     <View className="flex-1 bg-background">
@@ -112,7 +113,7 @@ export default function LikeHistoryScreen() {
         ) : curView === 'map' ? (
           <HistoryMapView items={attractions} />
         ) : (
-          ''
+          <GeoFilterView items={attractions} geo={curView} />
         )
       ) : (
         <View className="flex-1 items-center justify-center">
