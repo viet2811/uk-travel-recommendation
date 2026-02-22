@@ -4,6 +4,7 @@ import { Binoculars, Heart, Settings, User } from 'lucide-react-native';
 import { colors } from 'theme/colors';
 import SettingScreen from 'components/screens/SettingScreen';
 import LikedStackScreen from './LikedStack';
+import UKMap from 'components/ui/UKMap';
 
 const Tab = createBottomTabNavigator();
 
@@ -45,7 +46,8 @@ export default function BottomTabScreens() {
       />
       <Tab.Screen
         name="Profile"
-        component={SettingScreen}
+        // component={SettingScreen}
+        component={UKMap}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <User color={color} size={size} fill={focused ? color : 'transparent'} />

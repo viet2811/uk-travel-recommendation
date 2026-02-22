@@ -7,7 +7,7 @@ import { colors } from 'theme/colors';
 
 const R2_URL = process.env.EXPO_PUBLIC_R2_URL;
 
-const countryFlags: Record<string, any> = {
+export const countryFlags: Record<string, any> = {
   England: require('../../assets/images/england.png'),
   Scotland: require('../../assets/images/scotland.png'),
   Wales: require('../../assets/images/wales.png'),
