@@ -103,7 +103,7 @@ export default function LikeHistoryScreen() {
     queryFn: getLikedAttraction,
   });
 
-  const [curView, setCurView] = useState('country');
+  const [curView, setCurView] = useState('map');
 
   return (
     <View className="flex-1 bg-background">

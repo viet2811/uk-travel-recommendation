@@ -22,6 +22,8 @@ import WelcomeScreen from 'components/screens/WelcomeScreen';
 import { LoginScreen, RegisterScreen } from 'components/screens/UserAuthScreen';
 import { AuthProvider, useAuth } from 'context/AuthContext';
 import PreferenceScreen from 'components/screens/PreferenceScreen';
+import UKMap from 'components/ui/UKMap';
+import GeoAreaPicker from 'components/screens/GeoAreaPicker';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -41,7 +43,7 @@ const RootStack = () => {
       initialRouteName={isAuthenticated ? 'Main' : 'Landing'}>
       <Stack.Screen name="Landing" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="Register" component={GeoAreaPicker} />
       <Stack.Screen name="Preference" component={PreferenceScreen} />
       <Stack.Screen name="Main" component={BottomTabs} />
     </Stack.Navigator>
