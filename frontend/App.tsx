@@ -74,7 +74,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <LocationProvider>
-          <GestureHandlerRootView className="flex-1">
+          <GestureHandlerRootView className="flex-1 !bg-background">
             <NavigationContainer>
               {/* <BottomTabs /> */}
               <RootStack />

@@ -16,13 +16,11 @@ export default function FilterListView({ route }: ListAllProps) {
   return (
     <View className="flex-1 bg-background">
       <View className="absolute left-0 right-0 top-0 flex-row items-center justify-between px-6 pt-20">
-        <Pressable
-          className="flex-row items-center gap-1"
-          onPress={() => nav.navigate('LikedMain')}>
+        <Pressable className="flex-row items-center gap-1" onPress={() => nav.goBack()}>
           <ArrowLeft />
           <Text className="font-bold text-xl">Back</Text>
         </Pressable>
-        <Text className="font-bold text-3xl !text-accent">{catName}</Text>
+        <Text className="font-bold text-xl !text-accent">{catName}</Text>
       </View>
       <ListAllView items={items} />
     </View>
