@@ -1,6 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
 import { useMutation } from '@tanstack/react-query';
-import { axiosInstance } from 'api/axios';
 import { setUserPreferences } from 'api/user';
 import { CATEGORY_MAP, CategoryConfig } from 'components/ui/CategoryIcon';
 import { Text } from 'components/ui/Text';
@@ -54,7 +53,7 @@ export default function PreferenceScreen() {
   const preferenceMutation = useMutation({
     mutationFn: (mhe: (1 | 0)[]) => setUserPreferences(mhe),
     onSuccess: () => {
-      navigate('Main');
+      navigate('PreferenceArea');
     },
     onError: (e) => console.log('Error: ', e),
   });

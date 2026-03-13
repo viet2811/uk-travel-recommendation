@@ -5,6 +5,7 @@ import { colors } from 'theme/colors';
 import SettingScreen from 'components/screens/SettingScreen';
 import LikedStackScreen from './LikedStack';
 import UKMap from 'components/ui/UKMap';
+import SettingStack from './SettingStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -46,8 +47,7 @@ export default function BottomTabScreens() {
       />
       <Tab.Screen
         name="Profile"
-        // component={SettingScreen}
-        component={UKMap}
+        component={SettingStack}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <User color={color} size={size} fill={focused ? color : 'transparent'} />

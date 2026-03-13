@@ -34,10 +34,12 @@ export default function SettingScreen() {
         <ThumbsDown size={24} color={colors.destructive} />
         <Text className="text-2xl !text-destructive">Disliked Attractions</Text>
       </View>
-      <View className="flex-row items-center gap-4 rounded px-2 py-2">
+      <Pressable
+        className="flex-row items-center gap-4 rounded px-2 py-2"
+        onPress={() => nav.navigate('UpdateGeoFilter')}>
         <SlidersHorizontal size={24} color={colors.foreground} />
         <Text className="text-2xl">Recommendations Filter</Text>
-      </View>
+      </Pressable>
       <View className="flex-row items-center gap-4 rounded px-2 py-2">
         <CirclePlus size={24} color={colors.foreground} />
         <Text className="text-2xl">Add Visited Places</Text>

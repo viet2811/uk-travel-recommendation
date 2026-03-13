@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { axiosInstance } from './axios';
 
 type RecommendationParams = {
@@ -6,20 +7,9 @@ type RecommendationParams = {
   country?: string;
 };
 
-export async function getRecommendations(params?: RecommendationParams) {
-  // Pick only one param
-  let queryParam: Record<string, string> = {};
-
-  if (params) {
-    if (params.county) queryParam = { county: params.county };
-    else if (params.region) queryParam = { region: params.region };
-    else if (params.country) queryParam = { country: params.country };
-  }
-
-  const response = await axiosInstance.get('/recommendations', {
-    params: queryParam,
-  });
-
+export async function getRecommendations() {
+  const geoFilter = (await AsyncStorage.getItem('geoFilter')) ?? '';
+  const response = await axiosInstance.get(`/recommendations${geoFilter}`);
   return response.data;
 }
 

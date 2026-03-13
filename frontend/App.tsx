@@ -43,8 +43,9 @@ const RootStack = () => {
       initialRouteName={isAuthenticated ? 'Main' : 'Landing'}>
       <Stack.Screen name="Landing" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={GeoAreaPicker} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="Preference" component={PreferenceScreen} />
+      <Stack.Screen name="PreferenceArea" component={GeoAreaPicker} />
       <Stack.Screen name="Main" component={BottomTabs} />
     </Stack.Navigator>
   );

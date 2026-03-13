@@ -3,8 +3,11 @@ import { Pressable, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { colors } from 'theme/colors';
 import { Text } from 'components/ui/Text';
-import { useState } from 'react';
-import { ArrowRight } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { ArrowRight, Check } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 
 type ViewDropdownProps = {
   curView: string;
@@ -71,6 +74,38 @@ function ViewDropdown({ curView, onChange }: ViewDropdownProps) {
 export default function GeoAreaPicker() {
   const [curView, setCurView] = useState<'county' | 'region' | 'country'>('country');
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
+  const { navigate } = useNavigation();
+
+  useEffect(() => {
+    const loadGeoFilter = async () => {
+      const existGeoFilter = await AsyncStorage.getItem('geoFilter');
+      if (existGeoFilter) {
+        const [key, value] = existGeoFilter.replace('?', '').split('=');
+        setCurView(key as 'county' | 'region' | 'country');
+        setSelectedArea(value);
+      }
+    };
+    loadGeoFilter();
+  }, []);
+
+  const route = useRoute();
+  const queryClient = useQueryClient();
+  const handleSubmit = async () => {
+    let area;
+    if (selectedArea) {
+      area = `?${curView}=${selectedArea}`;
+    } else {
+      area = '';
+    }
+    await AsyncStorage.setItem('geoFilter', area);
+    if (route.name === 'PreferenceArea') {
+      navigate('Main');
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['recommendations'] });
+      navigate('Settings');
+    }
+  };
+
   return (
     <View className="flex-1 bg-background">
       <View className="flex-row items-center justify-between px-6 pt-20">
@@ -83,15 +118,16 @@ export default function GeoAreaPicker() {
           }}
         />
       </View>
-      <UKMap area={curView} selectedArea={selectedArea} setSelectedArea={setSelectedArea} />;
+      {/* TODO: County into a list */}
+      <UKMap area={curView} selectedArea={selectedArea} setSelectedArea={setSelectedArea} />
       <Text className="text-center font-bold text-xl !text-accent">
         {selectedArea ? selectedArea : 'United Kingdom'}
       </Text>
       <Pressable
         className="mr-6 mt-6 flex-row items-center self-end rounded-lg bg-accent px-5 py-3"
-        onPress={() => console.log(selectedArea)}>
-        <Text className="text-xl !text-accent-foreground">Next </Text>
-        <ArrowRight size={16} color={colors['accent-foreground']} />
+        onPress={handleSubmit}>
+        <Text className="text-xl !text-accent-foreground">Done </Text>
+        <Check size={16} color={colors['accent-foreground']} />
       </Pressable>
     </View>
   );

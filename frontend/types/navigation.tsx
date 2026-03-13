@@ -5,12 +5,17 @@ export type RootStackParamList = {
   Register: undefined;
   Login: undefined;
   Preference: undefined;
+  PreferenceArea: undefined;
   Main: undefined;
   Liked: undefined;
   Discovery: undefined;
-  Profile: undefined;
+  // LikedStack
   LikedMain: undefined;
   FilterListAll: { items: Attraction[]; catName: string };
+  // SettingStack
+  Profile: undefined;
+  Settings: undefined;
+  UpdateGeoFilter: undefined;
 };
 
 declare global {
