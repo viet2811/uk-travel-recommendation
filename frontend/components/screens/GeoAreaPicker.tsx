@@ -1,4 +1,4 @@
-import UKMap from 'components/ui/UKMap';
+import UKMap, { CountyList } from 'components/ui/UKMap';
 import { Pressable, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { colors } from 'theme/colors';
@@ -72,6 +72,7 @@ function ViewDropdown({ curView, onChange }: ViewDropdownProps) {
 }
 
 export default function GeoAreaPicker() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [curView, setCurView] = useState<'county' | 'region' | 'country'>('country');
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
   const { navigate } = useNavigation();
@@ -84,6 +85,7 @@ export default function GeoAreaPicker() {
         setCurView(key as 'county' | 'region' | 'country');
         setSelectedArea(value);
       }
+      setIsLoaded(true);
     };
     loadGeoFilter();
   }, []);
@@ -105,6 +107,7 @@ export default function GeoAreaPicker() {
       navigate('Settings');
     }
   };
+  if (!isLoaded) return null;
 
   return (
     <View className="flex-1 bg-background">
@@ -119,10 +122,16 @@ export default function GeoAreaPicker() {
         />
       </View>
       {/* TODO: County into a list */}
-      <UKMap area={curView} selectedArea={selectedArea} setSelectedArea={setSelectedArea} />
+      {curView !== 'county' && (
+        <UKMap area={curView} selectedArea={selectedArea} setSelectedArea={setSelectedArea} />
+      )}
+      <Text className="mt-6 text-center text-sm !text-muted">Current Filter</Text>
       <Text className="text-center font-bold text-xl !text-accent">
         {selectedArea ? selectedArea : 'United Kingdom'}
       </Text>
+      {curView == 'county' && (
+        <CountyList selectedArea={selectedArea} setSelectedArea={setSelectedArea} />
+      )}
       <Pressable
         className="mr-6 mt-6 flex-row items-center self-end rounded-lg bg-accent px-5 py-3"
         onPress={handleSubmit}>
