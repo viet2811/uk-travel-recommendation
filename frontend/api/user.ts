@@ -1,7 +1,13 @@
 import { axiosInstance } from './axios';
 
-export async function setUserPreferences(preferences: (1 | 0)[]) {
-  await axiosInstance.post('user/preferences/', { preferences });
+export async function setUserPreferences({
+  preferences,
+  labels,
+}: {
+  preferences: (0 | 1)[];
+  labels: string[];
+}) {
+  await axiosInstance.post('user/preferences/', { preferences, labels });
 }
 
 export async function registerUser({ username, password }: { username: string; password: string }) {

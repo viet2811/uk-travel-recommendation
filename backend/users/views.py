@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from .serializers import UserRegistrationSerializer
 from rest_framework.permissions import AllowAny
 from .models import UserProfile
+from sentence_transformers import SentenceTransformer
+import numpy as np
 import json
 
 class UserRegistrationView(APIView):
@@ -17,19 +19,33 @@ class UserRegistrationView(APIView):
             }, status=status.HTTP_201_CREATED)
         # Username already exists
         return Response({"username": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+embedModel = SentenceTransformer("all-MiniLM-L12-v2")
+
+def embedLabels(labels):
+    embeddings = embedModel.encode(labels)
+    return np.mean(embeddings, axis=0)
+
 class SetUserReferencesView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         mhe = request.data.get('preferences')
+        labels = request.data.get('labels')
         # Extra caution if front-end go wrong
-        if not mhe:
-            return Response({"error": "Missing preferences in request body"}, status=status.HTTP_400_BAD_REQUEST)
-        if type(mhe) != list or (type(mhe)==list and len(mhe) != 9):
+        if not mhe or not labels:
+            return Response({"error": "Missing preferences/labels in request body"}, status=status.HTTP_400_BAD_REQUEST)
+        if not isinstance(mhe, list) or len(mhe) != 9:
             return Response({"error": "preferences need to be a list with the length of 9"}, status=status.HTTP_400_BAD_REQUEST)
+        if not isinstance(labels, list):
+            return Response({"error": "labels need to be a list"}, status=status.HTTP_400_BAD_REQUEST)
+            
         # Convert into an actual list
-        UserProfile.objects.filter(user=request.user).update(labelMHE=mhe)
+        UserProfile.objects.filter(user=request.user).update(
+            labelMHE=mhe, 
+            labelEmbed=embedLabels(labels)
+        )
         return Response(status=status.HTTP_200_OK)
     
 class ResetUserProfileView(APIView):

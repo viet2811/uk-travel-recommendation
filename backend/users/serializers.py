@@ -10,13 +10,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ['username', 'password']
 
     def create(self, validated_data):
-        # 1. Create the standard Auth User (just like before)
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password']
         )
 
-        # 2. AUTOMATICALLY create the Profile for them
         UserProfile.objects.create(
             user=user,
             labelMHE=[0.0] * 9, 

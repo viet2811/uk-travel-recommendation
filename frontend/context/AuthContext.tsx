@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQueryClient } from '@tanstack/react-query';
 import { axiosInstance } from 'api/axios';
 import axios from 'axios';
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await SecureStore.deleteItemAsync('accessToken');
     await SecureStore.deleteItemAsync('refreshToken');
+    await AsyncStorage.clear();
     setIsAuthenticated(false);
     queryClient.clear();
   };

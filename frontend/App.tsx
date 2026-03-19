@@ -57,15 +57,12 @@ export default function App() {
     'Outfit-Bold': Outfit_700Bold,
     SpaceMono: SpaceMono_400Regular,
   });
-
   useEffect(() => {
     if (loaded || error) {
-      // Once fonts are ready (or failed), hide the splash screen
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
-
-  // Render nothing while fonts are loading to avoid a flash of unstyled text
+  
   if (!loaded && !error) {
     return null;
   }

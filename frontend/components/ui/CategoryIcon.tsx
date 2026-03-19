@@ -20,7 +20,7 @@ export type CategoryConfig = {
 
 export const CATEGORY_MAP: Record<string, CategoryConfig> = {
   animals: { icon: PawPrint, label: 'Animals', color: '#ca8a04' },
-  architecture: { icon: Pyramid, label: 'Architecture', color: '#0891b2' },
+  architecture: { icon: Pyramid, label: 'Landmark', color: '#0891b2' },
   entertainment: { icon: FerrisWheel, label: 'Entertainment', color: colors.accent },
   natural: { icon: Leaf, label: 'Nature', color: '#16a34a' },
   history_culture: { icon: Landmark, label: 'History & Culture', color: '#b45309' },

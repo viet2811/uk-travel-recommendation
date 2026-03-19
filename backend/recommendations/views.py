@@ -61,7 +61,9 @@ class RecommendationsListView(generics.ListAPIView):
             k = 75
         
         # knn cosine
-        return queryset.annotate(similarity=1-CosineDistance(expression='finalVector',vector=user_vector)).order_by('-similarity')[:k]
+        return queryset.annotate(
+            similarity=1-CosineDistance(expression='finalVector',vector=user_vector)
+        ).order_by('-similarity')[:k]
     
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -129,8 +131,8 @@ class DislikeAttractionView(generics.GenericAPIView):
             if not created: return response.Response({"error": "Already disliked"}, status=status.HTTP_400_BAD_REQUEST)
             # For later: if user adjust from like->dislike
 
-            newMHE = profile.labelMHE - (item.labelMHE * self.MHE_ALPHA)
-            profile.labelMHE = np.maximum(0, newMHE) #ReLU, so field wont go negative if dislike a lot 
+            # MHE:  ReLU, so field wont go negative if dislike a lot     
+            profile.labelMHE = np.maximum(0, profile.labelMHE - (item.labelMHE * self.MHE_ALPHA)) 
 
             # Embeddings: Vector Rejection / Orthogonal
             profile.labelEmbed -= self.EMBED_REJECTION * vectorProjection(profile.labelEmbed, item.labelEmbed) 
