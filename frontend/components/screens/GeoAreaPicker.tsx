@@ -4,7 +4,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { colors } from 'theme/colors';
 import { Text } from 'components/ui/Text';
 import { useEffect, useState } from 'react';
-import { ArrowRight, Check } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
@@ -103,7 +103,7 @@ export default function GeoAreaPicker() {
     if (route.name === 'PreferenceArea') {
       navigate('Main');
     } else {
-      queryClient.invalidateQueries({ queryKey: ['recommendations'] });
+      queryClient.resetQueries({ queryKey: ['recommendations'] });
       navigate('Settings');
     }
   };

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { Pressable, View, ActivityIndicator } from 'react-native';
 import { Attraction } from 'types/attraction';
 import AttractionCard, { AttractionCardRef } from './AttractionCard';
@@ -8,11 +8,12 @@ import { Ellipsis, Heart, X } from 'lucide-react-native';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dislikeAttraction, getRecommendations, likeAttraction } from 'api/attraction';
 
+const MAX_ITEM = 3;
+
 export default function CustomSwiperDeck() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const topCardRef = useRef<AttractionCardRef>(null);
   const animatedValue = useSharedValue(0);
-  const MAX_ITEM = 3;
 
   const queryClient = useQueryClient();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery<
@@ -20,7 +21,7 @@ export default function CustomSwiperDeck() {
   >({
     queryKey: ['recommendations'],
     queryFn: () => getRecommendations(),
-    getNextPageParam: (lastPage, allPages) => allPages.length, // Simple increment for page tracking
+    getNextPageParam: (lastPage, allPages) => (lastPage.length > 0 ? allPages.length : undefined),
     initialPageParam: 0,
   });
 
@@ -34,7 +35,7 @@ export default function CustomSwiperDeck() {
     const flatList = data.pages.flatMap((page) => page);
 
     // Avoid repeating the remain 5 items, which is not recorded in the backend
-    const seenIds = new Set();
+    const seenIds = new Set<string>();
     return flatList.filter((attraction) => {
       if (seenIds.has(attraction.id)) return false;
       seenIds.add(attraction.id);
@@ -51,6 +52,16 @@ export default function CustomSwiperDeck() {
       fetchNextPage();
     }
   }, [currentIndex, allRecommendations.length, isFetchingNextPage, hasNextPage, isLoading]);
+
+  // Reset index when the queries is invalidated and refreshed
+  const prevPagesLength = useRef(0);
+  useEffect(() => {
+    const curPagesLength = data?.pages.length ?? 0;
+    if (prevPagesLength.current > 1 && curPagesLength <= 1) {
+      setCurrentIndex(0);
+    }
+    prevPagesLength.current = curPagesLength;
+  }, [data?.pages.length]);
 
   if (isLoading && allRecommendations.length === 0) {
     return (

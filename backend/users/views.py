@@ -40,11 +40,13 @@ class SetUserReferencesView(APIView):
             return Response({"error": "preferences need to be a list with the length of 9"}, status=status.HTTP_400_BAD_REQUEST)
         if not isinstance(labels, list):
             return Response({"error": "labels need to be a list"}, status=status.HTTP_400_BAD_REQUEST)
-            
+
+        embed = embedLabels(labels)    
         # Convert into an actual list
         UserProfile.objects.filter(user=request.user).update(
             labelMHE=mhe, 
-            labelEmbed=embedLabels(labels)
+            labelEmbed=embed,
+            summaryEmbed=embed
         )
         return Response(status=status.HTTP_200_OK)
     
