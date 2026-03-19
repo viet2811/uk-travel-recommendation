@@ -24,6 +24,7 @@ import { AuthProvider, useAuth } from 'context/AuthContext';
 import PreferenceScreen from 'components/screens/PreferenceScreen';
 import UKMap from 'components/ui/UKMap';
 import GeoAreaPicker from 'components/screens/GeoAreaPicker';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -62,7 +63,7 @@ export default function App() {
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
-  
+
   if (!loaded && !error) {
     return null;
   }
@@ -72,10 +73,11 @@ export default function App() {
       <AuthProvider>
         <LocationProvider>
           <GestureHandlerRootView className="flex-1 !bg-background">
-            <NavigationContainer>
-              {/* <BottomTabs /> */}
-              <RootStack />
-            </NavigationContainer>
+            <BottomSheetModalProvider>
+              <NavigationContainer>
+                <RootStack />
+              </NavigationContainer>
+            </BottomSheetModalProvider>
           </GestureHandlerRootView>
         </LocationProvider>
       </AuthProvider>

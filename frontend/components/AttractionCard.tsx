@@ -144,7 +144,9 @@ const AttractionCard = forwardRef<AttractionCardRef, AttractionCardProps>(
             animatedStyle,
           ]}>
           <View className="flex-1">
-            <Text className="font-bold text-xl !text-accent">{item.name}</Text>
+            <Text className="font-bold text-xl !text-accent" numberOfLines={1}>
+              {item.name}
+            </Text>
             <View className="flex-row items-center gap-x-1">
               <Home size={14} className="text-foreground" />
               <Text className="text-sm">{locationStr}</Text>

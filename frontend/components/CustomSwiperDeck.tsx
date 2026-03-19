@@ -1,67 +1,27 @@
-import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { useRef } from 'react';
 import { Pressable, View, ActivityIndicator } from 'react-native';
-import { Attraction } from 'types/attraction';
 import AttractionCard, { AttractionCardRef } from './AttractionCard';
 import { useSharedValue } from 'react-native-reanimated';
 import { colors } from 'theme/colors';
 import { Ellipsis, Heart, X } from 'lucide-react-native';
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { dislikeAttraction, getRecommendations, likeAttraction } from 'api/attraction';
+import { useRecommendations } from 'hooks/useRecommendation';
+import AttractionBottomSheet, { AttractionBottomSheetRef } from 'hooks/useAttractionBottomSheet';
 
 const MAX_ITEM = 3;
 
 export default function CustomSwiperDeck() {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const topCardRef = useRef<AttractionCardRef>(null);
+  const bottomSheetRef = useRef<AttractionBottomSheetRef>(null);
   const animatedValue = useSharedValue(0);
 
-  const queryClient = useQueryClient();
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery<
-    Attraction[]
-  >({
-    queryKey: ['recommendations'],
-    queryFn: () => getRecommendations(),
-    getNextPageParam: (lastPage, allPages) => (lastPage.length > 0 ? allPages.length : undefined),
-    initialPageParam: 0,
-  });
-
-  const likeMutation = useMutation({
-    mutationFn: (id: string) => likeAttraction(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['likedHistory'] }),
-  });
-
-  const allRecommendations = useMemo(() => {
-    if (!data) return [];
-    const flatList = data.pages.flatMap((page) => page);
-
-    // Avoid repeating the remain 5 items, which is not recorded in the backend
-    const seenIds = new Set<string>();
-    return flatList.filter((attraction) => {
-      if (seenIds.has(attraction.id)) return false;
-      seenIds.add(attraction.id);
-      return true;
-    });
-  }, [data]);
-
-  // Trigger fetch when 5 cards are left
-  useEffect(() => {
-    if (isLoading || isFetchingNextPage || !hasNextPage) return; //Avoid refetching 3x times at the beginning
-
-    const cardsRemaining = allRecommendations.length - currentIndex;
-    if (allRecommendations.length > 0 && cardsRemaining <= 5) {
-      fetchNextPage();
-    }
-  }, [currentIndex, allRecommendations.length, isFetchingNextPage, hasNextPage, isLoading]);
-
-  // Reset index when the queries is invalidated and refreshed
-  const prevPagesLength = useRef(0);
-  useEffect(() => {
-    const curPagesLength = data?.pages.length ?? 0;
-    if (prevPagesLength.current > 1 && curPagesLength <= 1) {
-      setCurrentIndex(0);
-    }
-    prevPagesLength.current = curPagesLength;
-  }, [data?.pages.length]);
+  const {
+    allRecommendations,
+    currentIndex,
+    setCurrentIndex,
+    isLoading,
+    onSwipeLeft,
+    onSwipeRight,
+  } = useRecommendations();
 
   if (isLoading && allRecommendations.length === 0) {
     return (
@@ -88,8 +48,8 @@ export default function CustomSwiperDeck() {
             currentIndex={currentIndex}
             animatedValue={animatedValue}
             setCurrentIndex={setCurrentIndex}
-            onSwipeLeft={() => dislikeAttraction(attraction.id)}
-            onSwipeRight={() => likeMutation.mutate(attraction.id)}
+            onSwipeLeft={() => onSwipeLeft(attraction.id)}
+            onSwipeRight={() => onSwipeRight(attraction.id)}
           />
         );
       })}
@@ -100,8 +60,9 @@ export default function CustomSwiperDeck() {
           onPress={() => topCardRef.current?.swipeLeft()}>
           <X size={32} color={colors.destructive} />
         </Pressable>
-        <Pressable className="rounded-full border border-border p-3">
-          {/* TODO: show summary  */}
+        <Pressable
+          className="rounded-full border border-border p-3"
+          onPress={() => bottomSheetRef?.current?.open(allRecommendations[currentIndex])}>
           <Ellipsis size={32} color={colors.border} />
         </Pressable>
         <Pressable
@@ -110,6 +71,7 @@ export default function CustomSwiperDeck() {
           <Heart size={32} color={colors.secondary} />
         </Pressable>
       </View>
+      <AttractionBottomSheet ref={bottomSheetRef} opacity={0.4} />
     </View>
   );
 }

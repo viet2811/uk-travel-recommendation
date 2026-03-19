@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Attraction } from 'types/attraction';
 import { Image } from 'expo-image';
 import { CATEGORY_MAP } from 'components/ui/CategoryIcon';
@@ -16,11 +16,13 @@ export const countryFlags: Record<string, any> = {
   Gibraltar: require('../../assets/images/gibraltar.png'),
 };
 
-export default function HistoryCard({ item }: { item: Attraction }) {
+export default function HistoryCard({ item, onPress }: { item: Attraction; onPress: () => void }) {
   const labels = item.parentTypeLabel.split(',');
 
   return (
-    <View className="h-[300px] w-[49%] overflow-hidden rounded-2xl border border-border bg-card pb-2">
+    <Pressable
+      className="h-[300px] w-[49%] overflow-hidden rounded-2xl border border-border bg-card pb-2"
+      onPress={onPress}>
       <Image
         source={{
           uri: `${R2_URL}/${item.image_path[0]}`,
@@ -65,6 +67,6 @@ export default function HistoryCard({ item }: { item: Attraction }) {
           </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
