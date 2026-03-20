@@ -7,7 +7,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import { Attraction } from 'types/attraction';
 import { colors } from 'theme/colors';
-import AttractionBottomSheetContent from 'components/ui/AttractionBottomSheetContent';
+import AttractionBottomSheetContent from 'components/attraction/AttractionBottomSheetContent';
 import { Easing } from 'react-native-reanimated';
 
 // define the function that other can call to use

@@ -16,7 +16,7 @@ export const countryFlags: Record<string, any> = {
   Gibraltar: require('../../assets/images/gibraltar.png'),
 };
 
-export default function HistoryCard({ item, onPress }: { item: Attraction; onPress: () => void }) {
+export default function LikedCard({ item, onPress }: { item: Attraction; onPress: () => void }) {
   const labels = item.parentTypeLabel.split(',');
 
   return (

@@ -8,9 +8,9 @@ import { useQuery } from '@tanstack/react-query';
 import { getLikedAttraction } from 'api/attraction';
 import { useState } from 'react';
 import { Dropdown } from 'react-native-element-dropdown';
-import ListAllView from 'components/history/ListAllView';
-import HistoryMapView from 'components/history/HistoryMapView';
-import GeoFilterView from 'components/history/GeoFilterView';
+import ListAllView from 'components/liked/LikedAttractionGrid';
+import LikedMapView from 'components/liked/LikedMapView';
+import LikedGeoFilter from 'components/liked/LikedGeoFilter';
 
 type ViewDropdownProps = {
   curView: string;
@@ -97,7 +97,7 @@ function ViewDropdown({ curView, setCurView }: ViewDropdownProps) {
   );
 }
 
-export default function LikeHistoryScreen() {
+export default function LikedScreen() {
   const { data: attractions, isLoading } = useQuery<Attraction[]>({
     queryKey: ['likedHistory'],
     queryFn: getLikedAttraction,
@@ -111,9 +111,9 @@ export default function LikeHistoryScreen() {
         curView === 'all' ? (
           <ListAllView items={attractions} />
         ) : curView === 'map' ? (
-          <HistoryMapView items={attractions} />
+          <LikedMapView items={attractions} />
         ) : (
-          <GeoFilterView items={attractions} geo={curView} />
+          <LikedGeoFilter items={attractions} geo={curView} />
         )
       ) : (
         <View className="flex-1 items-center justify-center">

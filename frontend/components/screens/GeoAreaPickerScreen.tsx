@@ -1,4 +1,4 @@
-import UKMap, { CountyList } from 'components/ui/UKMap';
+import UKAreaPicker, { CountyList } from 'components/ui/UKAreaPicker';
 import { Pressable, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { colors } from 'theme/colors';
@@ -71,7 +71,7 @@ function ViewDropdown({ curView, onChange }: ViewDropdownProps) {
   );
 }
 
-export default function GeoAreaPicker() {
+export default function GeoAreaPickerScreen() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [curView, setCurView] = useState<'county' | 'region' | 'country'>('country');
   const [selectedArea, setSelectedArea] = useState<string | null>(null);
@@ -123,7 +123,11 @@ export default function GeoAreaPicker() {
       </View>
       {/* TODO: County into a list */}
       {curView !== 'county' && (
-        <UKMap area={curView} selectedArea={selectedArea} setSelectedArea={setSelectedArea} />
+        <UKAreaPicker
+          area={curView}
+          selectedArea={selectedArea}
+          setSelectedArea={setSelectedArea}
+        />
       )}
       <Text className="mt-6 text-center text-sm !text-muted">Current Filter</Text>
       <Text className="text-center font-bold text-xl !text-accent">

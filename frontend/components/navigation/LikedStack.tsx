@@ -1,11 +1,11 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import FilterListView from 'components/history/FilterListView';
-import LikeHistoryScreen from 'components/screens/LikeHistoryScreen';
+import LikedAreaScreen from 'components/liked/LikedAreaScreen';
+import LikedScreen from '../screens/LikedScreen';
 import { colors } from 'theme/colors';
 import { Attraction } from 'types/attraction';
 
 export type LikedRootStackParamList = {
-  FilterListAll: { items: Attraction[]; catName: string };
+  FilterListAll: { items: Attraction[]; areaName: string };
   LikedMain: undefined;
 };
 
@@ -19,8 +19,8 @@ export default function LikedStackScreen() {
         contentStyle: { backgroundColor: colors.background },
         animation: 'ios_from_right',
       }}>
-      <LikedStack.Screen name="LikedMain" component={LikeHistoryScreen} />
-      <LikedStack.Screen name="FilterListAll" component={FilterListView} />
+      <LikedStack.Screen name="LikedMain" component={LikedScreen} />
+      <LikedStack.Screen name="FilterListAll" component={LikedAreaScreen} />
     </LikedStack.Navigator>
   );
 }

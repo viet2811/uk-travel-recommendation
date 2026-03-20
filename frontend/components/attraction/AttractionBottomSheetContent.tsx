@@ -5,7 +5,7 @@ import { Text } from 'components/ui/Text';
 import { Linking, View } from 'react-native';
 import { Attraction } from 'types/attraction';
 import { Link2 } from 'lucide-react-native';
-import ExpandableText from 'components/ExpandableText';
+import ExpandableText from 'components/ui/ExpandableText';
 
 const R2_URL = process.env.EXPO_PUBLIC_R2_URL;
 

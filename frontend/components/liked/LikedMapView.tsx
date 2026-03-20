@@ -11,7 +11,7 @@ const initialRegionUK = {
   longitudeDelta: 11.19159322232008,
 };
 
-const HistoryMapView = memo(({ items }: { items: Attraction[] }) => {
+const LikedMapView = memo(({ items }: { items: Attraction[] }) => {
   const mapRef = useRef<MapView>(null);
   const [currentRegion, setCurrentRegion] = useState(initialRegionUK);
   const bottomSheetRef = useRef<AttractionBottomSheetRef>(null);
@@ -69,4 +69,4 @@ const HistoryMapView = memo(({ items }: { items: Attraction[] }) => {
   );
 });
 
-export default HistoryMapView;
+export default LikedMapView;

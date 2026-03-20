@@ -15,7 +15,7 @@ type MapDropdownProps = {
   setSelectedArea: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
-export default function UKMap({ area, selectedArea, setSelectedArea }: MapDropdownProps) {
+export default function UKAreaPicker({ area, selectedArea, setSelectedArea }: MapDropdownProps) {
   const layout = area === 'region' ? region : country;
   return (
     <View className="-my-32 items-center justify-center">

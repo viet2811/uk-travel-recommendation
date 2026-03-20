@@ -4,7 +4,7 @@ import { Binoculars, Heart, Settings, User } from 'lucide-react-native';
 import { colors } from 'theme/colors';
 import SettingScreen from 'components/screens/SettingScreen';
 import LikedStackScreen from './LikedStack';
-import UKMap from 'components/ui/UKMap';
+import UKAreaPicker from 'components/ui/UKAreaPicker';
 import SettingStack from './SettingStack';
 
 const Tab = createBottomTabNavigator();

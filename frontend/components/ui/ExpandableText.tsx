@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Pressable } from 'react-native';
-import { Text } from './ui/Text';
+import { Text } from './Text';
 
 type ExpandableTextProps = {
   text: string;

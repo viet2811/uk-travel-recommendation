@@ -4,14 +4,16 @@ export type RootStackParamList = {
   Landing: undefined;
   Register: undefined;
   Login: undefined;
+  // PreferenceStack
   Preference: undefined;
   PreferenceArea: undefined;
+  /// Bottom Tabs Nav
   Main: undefined;
-  Liked: undefined;
   Discovery: undefined;
   // LikedStack
+  Liked: undefined;
   LikedMain: undefined;
-  FilterListAll: { items: Attraction[]; catName: string };
+  FilterListAll: { items: Attraction[]; areaName: string };
   // SettingStack
   Profile: undefined;
   Settings: undefined;

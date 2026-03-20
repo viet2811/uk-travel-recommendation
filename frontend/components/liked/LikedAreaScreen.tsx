@@ -1,7 +1,7 @@
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Text } from 'components/ui/Text';
 import { Attraction } from 'types/attraction';
-import ListAllView from './ListAllView';
+import ListAllView from './LikedAttractionGrid';
 import { LikedRootStackParamList } from 'components/navigation/LikedStack';
 import { Pressable, View } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
@@ -10,8 +10,8 @@ type ListAllProps = {
   route: RouteProp<LikedRootStackParamList, 'FilterListAll'>;
 };
 
-export default function FilterListView({ route }: ListAllProps) {
-  const { items, catName } = route.params;
+export default function LikedAreaScreen({ route }: ListAllProps) {
+  const { items, areaName } = route.params;
   const nav = useNavigation();
   return (
     <View className="flex-1 bg-background">
@@ -20,7 +20,7 @@ export default function FilterListView({ route }: ListAllProps) {
           <ArrowLeft />
           <Text className="font-bold text-xl">Back</Text>
         </Pressable>
-        <Text className="font-bold text-xl !text-accent">{catName}</Text>
+        <Text className="font-bold text-xl !text-accent">{areaName}</Text>
       </View>
       <ListAllView items={items} />
     </View>

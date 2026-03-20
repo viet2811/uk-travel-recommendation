@@ -9,14 +9,14 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { colors } from 'theme/colors';
 
 export function LoginScreen() {
-  return <UserAuthScreen loginView />;
+  return <AuthScreens loginView />;
 }
 
 export function RegisterScreen() {
-  return <UserAuthScreen loginView={false} />;
+  return <AuthScreens loginView={false} />;
 }
 
-function UserAuthScreen({ loginView }: { loginView: boolean }) {
+function AuthScreens({ loginView }: { loginView: boolean }) {
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
 
