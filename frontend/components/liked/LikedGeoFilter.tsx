@@ -51,7 +51,7 @@ function GeoCard({
   return (
     <Pressable
       className="w-full flex-row items-center gap-6 rounded-2xl border border-border bg-card px-6 py-3"
-      onPress={() => nav.navigate('FilterListAll', { items: attractions, areaName: geoName })}>
+      onPress={() => nav.navigate('LikedAreaScreen', { items: attractions, areaName: geoName })}>
       <View className="relative h-20 w-20">{MapComponent}</View>
       <Text className="max-w-52 text-wrap text-xl">{geoName}</Text>
       <View className="ml-auto mt-1">

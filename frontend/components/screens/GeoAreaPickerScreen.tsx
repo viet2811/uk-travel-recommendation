@@ -1,4 +1,4 @@
-import UKAreaPicker, { CountyList } from 'components/ui/UKAreaPicker';
+import UKAreaPicker, { CountyList } from '../ui/UKAreaPicker';
 import { Pressable, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { colors } from 'theme/colors';
@@ -101,7 +101,7 @@ export default function GeoAreaPickerScreen() {
     }
     await AsyncStorage.setItem('geoFilter', area);
     if (route.name === 'PreferenceArea') {
-      navigate('Main');
+      navigate('PreferenceImport');
     } else {
       queryClient.resetQueries({ queryKey: ['recommendations'] });
       navigate('Settings');

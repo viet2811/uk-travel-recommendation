@@ -40,10 +40,12 @@ export default function SettingScreen() {
         <SlidersHorizontal size={24} color={colors.foreground} />
         <Text className="text-2xl">Recommendations Filter</Text>
       </Pressable>
-      <View className="flex-row items-center gap-4 rounded px-2 py-2">
+      <Pressable
+        className="flex-row items-center gap-4 rounded px-2 py-2"
+        onPress={() => nav.navigate('AttractionImport')}>
         <CirclePlus size={24} color={colors.foreground} />
         <Text className="text-2xl">Add Visited Places</Text>
-      </View>
+      </Pressable>
       <View className="flex-row items-center gap-4 rounded px-2 py-2">
         <RotateCcw size={24} color={colors.foreground} />
         <Text className="text-2xl">Reset Preferences</Text>

@@ -34,7 +34,7 @@ function AuthScreens({ loginView }: { loginView: boolean }) {
     mutationFn: registerUser,
     onSuccess: () => {
       handleLogin(() => {
-        navigate('Preference');
+        navigate('PreferenceStack');
       });
     },
   });

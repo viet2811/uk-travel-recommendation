@@ -5,19 +5,22 @@ export type RootStackParamList = {
   Register: undefined;
   Login: undefined;
   // PreferenceStack
-  Preference: undefined;
+  PreferenceStack: undefined;
+  PreferenceCat: undefined;
   PreferenceArea: undefined;
+  PreferenceImport: undefined;
   /// Bottom Tabs Nav
   Main: undefined;
   Discovery: undefined;
   // LikedStack
   Liked: undefined;
   LikedMain: undefined;
-  FilterListAll: { items: Attraction[]; areaName: string };
+  LikedAreaScreen: { items: Attraction[]; areaName: string };
   // SettingStack
   Profile: undefined;
   Settings: undefined;
   UpdateGeoFilter: undefined;
+  AttractionImport: undefined;
 };
 
 declare global {

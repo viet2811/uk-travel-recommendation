@@ -1,13 +1,12 @@
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { Text } from 'components/ui/Text';
-import { Attraction } from 'types/attraction';
 import ListAllView from './LikedAttractionGrid';
 import { LikedRootStackParamList } from 'components/navigation/LikedStack';
 import { Pressable, View } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 
 type ListAllProps = {
-  route: RouteProp<LikedRootStackParamList, 'FilterListAll'>;
+  route: RouteProp<LikedRootStackParamList, 'LikedAreaScreen'>;
 };
 
 export default function LikedAreaScreen({ route }: ListAllProps) {

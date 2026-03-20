@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { setUserPreferences } from 'api/user';
 import { CATEGORY_MAP, CategoryConfig } from 'components/ui/CategoryIcon';
 import { Text } from 'components/ui/Text';
-import { ArrowRight, Send, SendHorizonal, X } from 'lucide-react-native';
+import { ArrowRight, Send, X } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -106,7 +106,7 @@ export default function PreferenceScreen() {
               onChangeText={setUserInputLabel}
               cursorColor={colors.accent}
               onSubmitEditing={onEnterCustomLabel}
-              maxLength={30}
+              maxLength={50}
             />
             <Pressable onPress={onEnterCustomLabel} className="mt-0.5 px-4 py-2">
               <Send size={18} color={userInputLabel ? colors.accent : colors.muted} />

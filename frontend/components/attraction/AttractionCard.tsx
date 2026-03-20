@@ -1,8 +1,8 @@
 import { View, Linking, useWindowDimensions } from 'react-native';
-import { Text } from './ui/Text';
+import { Text } from '../ui/Text';
 import { MapPin, Home, Link2 } from 'lucide-react-native';
 import { Attraction } from 'types/attraction';
-import ImageCarousel from './ImageCarousel';
+import ImageCarousel from '../ui/ImageCarousel';
 import { useLocation } from 'context/LocationContext';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -14,7 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { forwardRef, useImperativeHandle } from 'react';
-import { CATEGORY_MAP } from './ui/CategoryIcon';
+import { CATEGORY_MAP } from '../ui/CategoryIcon';
 
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const toRad = (value: number) => (value * Math.PI) / 180;

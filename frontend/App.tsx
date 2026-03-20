@@ -19,12 +19,12 @@ import React, { useEffect } from 'react';
 import { LocationProvider } from 'context/LocationContext';
 import BottomTabs from 'components/navigation/BottomTabs';
 import WelcomeScreen from 'components/screens/WelcomeScreen';
-import { LoginScreen, RegisterScreen } from 'components/screens/AuthScreens';
+import { LoginScreen, RegisterScreen } from './components/screens/AuthScreens';
 import { AuthProvider, useAuth } from 'context/AuthContext';
 import PreferenceScreen from 'components/screens/PreferenceScreen';
-import UKAreaPicker from 'components/ui/UKAreaPicker';
-import GeoAreaPickerScreen from 'components/screens/GeoAreaPickerScreen';
+import GeoAreaPickerScreen from './components/screens/GeoAreaPickerScreen';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import PreferenceStack from 'components/navigation/PreferenceStack';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -45,8 +45,7 @@ const RootStack = () => {
       <Stack.Screen name="Landing" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="Preference" component={PreferenceScreen} />
-      <Stack.Screen name="PreferenceArea" component={GeoAreaPickerScreen} />
+      <Stack.Screen name="PreferenceStack" component={PreferenceStack} />
       <Stack.Screen name="Main" component={BottomTabs} />
     </Stack.Navigator>
   );

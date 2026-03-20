@@ -16,3 +16,10 @@ class AttractionSerializer(serializers.ModelSerializer):
             'summaryEmbed',
             'finalVector'
         ]
+
+class AttractionSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attraction
+        fields = ['id', 'name']
+
+        

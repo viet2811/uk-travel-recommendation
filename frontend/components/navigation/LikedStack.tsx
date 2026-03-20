@@ -5,22 +5,22 @@ import { colors } from 'theme/colors';
 import { Attraction } from 'types/attraction';
 
 export type LikedRootStackParamList = {
-  FilterListAll: { items: Attraction[]; areaName: string };
+  LikedAreaScreen: { items: Attraction[]; areaName: string };
   LikedMain: undefined;
 };
 
-const LikedStack = createNativeStackNavigator<LikedRootStackParamList>();
+const Stack = createNativeStackNavigator<LikedRootStackParamList>();
 
-export default function LikedStackScreen() {
+export default function LikedStack() {
   return (
-    <LikedStack.Navigator
+    <Stack.Navigator
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.background },
         animation: 'ios_from_right',
       }}>
-      <LikedStack.Screen name="LikedMain" component={LikedScreen} />
-      <LikedStack.Screen name="FilterListAll" component={LikedAreaScreen} />
-    </LikedStack.Navigator>
+      <Stack.Screen name="LikedMain" component={LikedScreen} />
+      <Stack.Screen name="LikedAreaScreen" component={LikedAreaScreen} />
+    </Stack.Navigator>
   );
 }

@@ -2,9 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import DiscoveryScreen from '../screens/DiscoveryScreen';
 import { Binoculars, Heart, Settings, User } from 'lucide-react-native';
 import { colors } from 'theme/colors';
-import SettingScreen from 'components/screens/SettingScreen';
-import LikedStackScreen from './LikedStack';
-import UKAreaPicker from 'components/ui/UKAreaPicker';
+import LikedStack from './LikedStack';
 import SettingStack from './SettingStack';
 
 const Tab = createBottomTabNavigator();
@@ -33,7 +31,7 @@ export default function BottomTabScreens() {
       />
       <Tab.Screen
         name="Liked"
-        component={LikedStackScreen}
+        component={LikedStack}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <Heart

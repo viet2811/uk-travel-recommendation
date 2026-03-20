@@ -3,7 +3,7 @@ from pgvector.django import CosineDistance
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from .models import Attraction
-from .serializers import AttractionSerializer
+from .serializers import AttractionSerializer, AttractionSearchSerializer
 from users.models import UserProfile, UserInteraction
 from .utils import normalize
 import numpy as np
@@ -82,6 +82,11 @@ class LikeAttractionView(generics.GenericAPIView):
     LABEL_EMBED_ALPHA = 0.15
     SUMMARY_EMBED_ALPHA = 0.1
 
+    def _update_profile(self, profile, item):
+        profile.labelMHE += (item.labelMHE * self.MHE_ALPHA)
+        profile.labelEmbed = ((1 - self.LABEL_EMBED_ALPHA) * profile.labelEmbed) + self.LABEL_EMBED_ALPHA * item.labelEmbed
+        profile.summaryEmbed = ((1 - self.SUMMARY_EMBED_ALPHA) * profile.summaryEmbed) + self.SUMMARY_EMBED_ALPHA * item.summaryEmbed
+
     def post(self, request, *args, **kwargs):
         item = self.get_object()
         with transaction.atomic():
@@ -94,18 +99,33 @@ class LikeAttractionView(generics.GenericAPIView):
             )
             if not created: return response.Response({"error": "Already liked"}, status=status.HTTP_400_BAD_REQUEST)
             # For later: if user adjust from dislike->like
-
-            # All field: item, profile are type np.ndarray
-            profile.labelMHE += (item.labelMHE * self.MHE_ALPHA)
-            profile.labelEmbed = ((1 - self.LABEL_EMBED_ALPHA) * profile.labelEmbed) + self.LABEL_EMBED_ALPHA * item.labelEmbed
-            profile.summaryEmbed = ((1 - self.SUMMARY_EMBED_ALPHA) * profile.summaryEmbed) + self.SUMMARY_EMBED_ALPHA * item.summaryEmbed
-
+            self._update_profile(profile, item)
             profile.save()
 
         return response.Response(
             {"message": "Preference updated", "id": item.id}, 
             status=status.HTTP_200_OK
         )
+
+class BulkLikeAttractionView(LikeAttractionView):
+    def post(self, request, *arg, **kwargs):
+        ids = request.data.get('ids', [])
+        attractions = Attraction.objects.filter(id__in=ids)
+        with transaction.atomic():
+            profile = UserProfile.objects.select_for_update().get(user=request.user)
+            for item in attractions:
+                _, created = UserInteraction.objects.update_or_create(
+                    user=request.user, attraction=item, liked=True
+                )
+                if created:
+                    self._update_profile(profile, item)
+            profile.save()
+
+        return response.Response(
+            {"message": "Preferences updated"}, 
+            status=status.HTTP_200_OK
+        )
+
 
 def vectorProjection(a, b):
     return np.multiply((np.dot(a,b) / np.dot(b,b)), b)
@@ -155,3 +175,13 @@ class LikedAttractionsListView(generics.ListAPIView):
             interactions__user=self.request.user,
             interactions__liked=True
         )
+    
+class AttractionSearchView(generics.ListAPIView):
+    serializer_class = AttractionSearchSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        query = self.request.query_params.get('q')
+        if not query:
+            return Attraction.objects.none()
+        return Attraction.objects.filter(name__icontains=query)[:20]
