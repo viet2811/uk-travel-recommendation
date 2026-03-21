@@ -41,13 +41,14 @@ class SetUserReferencesView(APIView):
         if not isinstance(labels, list):
             return Response({"error": "labels need to be a list"}, status=status.HTTP_400_BAD_REQUEST)
 
-        embed = embedLabels(labels)    
-        # Convert into an actual list
-        UserProfile.objects.filter(user=request.user).update(
-            labelMHE=mhe, 
-            labelEmbed=embed,
-            summaryEmbed=embed
-        )
+        update_fields = {'labelMHE': mhe}
+        if labels: 
+            embed = embedLabels(labels) 
+            update_fields['labelEmbed'] = embed
+            update_fields['summaryEmbed'] = embed
+
+        ## ** unpack dict into keyword arg, damn
+        UserProfile.objects.filter(user=request.user).update(**update_fields)
         return Response(status=status.HTTP_200_OK)
     
 class ResetUserProfileView(APIView):
