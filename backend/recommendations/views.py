@@ -4,12 +4,13 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 from .models import Attraction
 from .serializers import AttractionSerializer, AttractionSearchSerializer
-from users.models import UserProfile, UserInteraction
+from users.models import UserProfile, UserInteraction, UserRecommendationBatch
 from .utils import normalize
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from types import SimpleNamespace
 
-def mmr_rerank(candidates, n=10, lambda_mult=0.3):
+def mmr_rerank(candidates, n=10, lambda_mult=0.5):
     selected = []
     remains = candidates[:]
 
@@ -72,11 +73,25 @@ class RecommendationsListView(generics.ListAPIView):
 
         serializer = self.get_serializer(final_recommendations, many=True)
         return response.Response(serializer.data)
-    
-class LikeAttractionView(generics.GenericAPIView):
+
+class InteractionView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = Attraction.objects.all()
 
+    def _log_ild(self, user):
+        count = UserInteraction.objects.filter(user=user).count()
+        if count % 10 == 0:
+            last_10 = UserInteraction.objects.filter(user=user).order_by('-id')[:10]
+            attraction_ids = [i.attraction_id for i in last_10]
+            vectors = np.array([
+                a.finalVector for a in Attraction.objects.filter(id__in=attraction_ids)
+            ])
+            n = len(vectors)
+            sims = cosine_similarity(vectors)
+            ild = np.sum(1 - sims) / (n * (n - 1)) if n > 1 else 0.0
+            UserRecommendationBatch.objects.create(user=user, ild_score=ild)   
+
+class LikeAttractionView(InteractionView):
     # Constant learning rate
     MHE_ALPHA = 0.2
     LABEL_EMBED_ALPHA = 0.15
@@ -91,15 +106,21 @@ class LikeAttractionView(generics.GenericAPIView):
         item = self.get_object()
         with transaction.atomic():
             profile = UserProfile.objects.select_for_update().get(user=request.user)
-
+            old_vector = normalize(profile.labelMHE, profile.labelEmbed, profile.summaryEmbed)
+            
             _, created = UserInteraction.objects.update_or_create(
                 user=request.user,
                 attraction=item,
-                liked=True
+                defaults={'liked': True, 'profile_delta': None}              
             )
             if not created: return response.Response({"error": "Already liked"}, status=status.HTTP_400_BAD_REQUEST)
             # For later: if user adjust from dislike->like
             self._update_profile(profile, item)
+
+            new_vector = normalize(profile.labelMHE, profile.labelEmbed, profile.summaryEmbed)
+            delta = 1 - float(cosine_similarity(old_vector.reshape(1,-1), new_vector.reshape(1,-1))[0][0])
+            UserInteraction.objects.filter(user=request.user, attraction=item).update(profile_delta=delta)
+            self._log_ild(request.user)
             profile.save()
 
         return response.Response(
@@ -111,14 +132,57 @@ class BulkLikeAttractionView(LikeAttractionView):
     def post(self, request, *arg, **kwargs):
         ids = request.data.get('ids', [])
         attractions = Attraction.objects.filter(id__in=ids)
+
+        # User bulk import on onboarding stage
         with transaction.atomic():
             profile = UserProfile.objects.select_for_update().get(user=request.user)
+            old_vector = normalize(profile.labelMHE, profile.labelEmbed, profile.summaryEmbed)
+            
+            mheList = []
+            labelEmbedList = []
+            summaryEmbedList = []
+
             for item in attractions:
                 _, created = UserInteraction.objects.update_or_create(
                     user=request.user, attraction=item, liked=True
                 )
                 if created:
-                    self._update_profile(profile, item)
+                    mheList.append(item.labelMHE)
+                    labelEmbedList.append(item.labelEmbed)
+                    summaryEmbedList.append(item.summaryEmbed)
+            
+            if not mheList:
+                return response.Response({"message": "Attraction already added"}, status=status.HTTP_400_BAD_REQUEST)
+
+            mheSums = np.sum(mheList, axis=0)
+            avgLabelEmbed = np.mean(labelEmbedList, axis=0)
+            avgSummaryEmbed = np.mean(summaryEmbedList, axis=0)
+
+            avgVector = SimpleNamespace(
+                labelMHE=mheSums,
+                labelEmbed=avgLabelEmbed,
+                summaryEmbed=avgSummaryEmbed
+            )
+
+            isInitialising = not UserInteraction.objects.filter(user=request.user).exists()
+            emptyEmbedding = not np.any(profile.labelEmbed) and not np.any(profile.summaryEmbed)
+            if isInitialising:
+                profile.labelMHE += (avgVector.labelMHE * (1 - self.MHE_ALPHA))
+                if emptyEmbedding: 
+                    profile.labelEmbed = avgLabelEmbed
+                    profile.summaryEmbed = avgSummaryEmbed
+                else:
+                    alphaEmbedding = 0.6
+                    profile.labelEmbed = (alphaEmbedding * avgLabelEmbed) + (1-alphaEmbedding) * profile.labelEmbed
+                    profile.summaryEmbed = (alphaEmbedding * avgSummaryEmbed) + (1-alphaEmbedding) * profile.summaryEmbed
+            else:        
+                self._update_profile(profile, avgVector)
+
+            new_vector = normalize(profile.labelMHE, profile.labelEmbed, profile.summaryEmbed)
+            delta = 1 - float(cosine_similarity(old_vector.reshape(1,-1), new_vector.reshape(1,-1))[0][0])
+
+            # Same delta for last one
+            UserInteraction.objects.filter(user=request.user, attraction=attractions.last()).update(profile_delta=delta)
             profile.save()
 
         return response.Response(
@@ -130,10 +194,7 @@ class BulkLikeAttractionView(LikeAttractionView):
 def vectorProjection(a, b):
     return np.multiply((np.dot(a,b) / np.dot(b,b)), b)
 
-class DislikeAttractionView(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-    queryset = Attraction.objects.all()
-
+class DislikeAttractionView(InteractionView):
     # Constant learning rate
     MHE_ALPHA = 0.1
     EMBED_REJECTION = 0.3
@@ -142,11 +203,12 @@ class DislikeAttractionView(generics.GenericAPIView):
         item = self.get_object()
         with transaction.atomic():
             profile = UserProfile.objects.select_for_update().get(user=request.user)
+            old_vector = normalize(profile.labelMHE, profile.labelEmbed, profile.summaryEmbed)
 
             _, created = UserInteraction.objects.update_or_create(
                 user=request.user,
                 attraction=item,
-                liked=False
+                defaults={'liked': False, 'profile_delta': None}              
             )
             if not created: return response.Response({"error": "Already disliked"}, status=status.HTTP_400_BAD_REQUEST)
             # For later: if user adjust from like->dislike
@@ -158,6 +220,10 @@ class DislikeAttractionView(generics.GenericAPIView):
             profile.labelEmbed -= self.EMBED_REJECTION * vectorProjection(profile.labelEmbed, item.labelEmbed) 
             profile.summaryEmbed -= self.EMBED_REJECTION * vectorProjection(profile.summaryEmbed, item.summaryEmbed) 
 
+            new_vector = normalize(profile.labelMHE, profile.labelEmbed, profile.summaryEmbed)
+            delta = 1 - float(cosine_similarity(old_vector.reshape(1,-1), new_vector.reshape(1,-1))[0][0])
+            UserInteraction.objects.filter(user=request.user, attraction=item).update(profile_delta=delta)
+            self._log_ild(request.user)
             profile.save()
 
         return response.Response(

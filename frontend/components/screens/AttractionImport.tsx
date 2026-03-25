@@ -105,10 +105,17 @@ export default function AttractionImport() {
           <Text className="mr-2 text-xl text-destructive">{isRegistering ? 'Skip' : 'Back'}</Text>
         </Pressable>
         <Pressable
-          className="flex-row items-center rounded-lg bg-accent px-5 py-3"
+          className={`flex-row items-center rounded-lg px-5 py-3 ${addedAttractions.length > 0 ? 'bg-accent' : 'bg-card'}`}
+          disabled={addedAttractions.length === 0}
           onPress={() => submitMutation.mutate(addedAttractions.map((attr) => attr.id))}>
-          <Text className="mr-2 text-xl !text-accent-foreground">Submit</Text>
-          <ArrowRight size={16} color={colors['accent-foreground']} />
+          <Text
+            className={`mr-2 text-xl  ${addedAttractions.length > 0 ? '!text-accent-foreground' : 'text-muted'}`}>
+            Submit
+          </Text>
+          <ArrowRight
+            size={16}
+            color={addedAttractions.length > 0 ? colors['accent-foreground'] : colors.muted}
+          />
         </Pressable>
       </View>
     </View>

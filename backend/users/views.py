@@ -34,7 +34,7 @@ class SetUserReferencesView(APIView):
         mhe = request.data.get('preferences')
         labels = request.data.get('labels')
         # Extra caution if front-end go wrong
-        if not mhe or not labels:
+        if mhe is None or labels is None:
             return Response({"error": "Missing preferences/labels in request body"}, status=status.HTTP_400_BAD_REQUEST)
         if not isinstance(mhe, list) or len(mhe) != 9:
             return Response({"error": "preferences need to be a list with the length of 9"}, status=status.HTTP_400_BAD_REQUEST)

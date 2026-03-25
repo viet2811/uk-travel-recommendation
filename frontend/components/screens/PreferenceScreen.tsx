@@ -59,7 +59,7 @@ export default function PreferenceScreen() {
     onSuccess: () => {
       navigate('PreferenceArea');
     },
-    onError: (e) => console.log('Error: ', e),
+    onError: (e) => console.log('Error: ', e.message),
   });
 
   const handleSubmit = async () => {
