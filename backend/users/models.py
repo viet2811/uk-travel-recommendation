@@ -15,6 +15,8 @@ class UserInteraction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="interactions")
     attraction = models.ForeignKey(Attraction, on_delete=models.CASCADE, related_name="interactions")
     liked = models.BooleanField()
+    profile_delta = models.FloatField(null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = [
@@ -23,3 +25,8 @@ class UserInteraction(models.Model):
                 name="unique_user_attraction_interaction" # This ensures only 1 pair (user, attraction) exists
             )
         ]
+
+class UserRecommendationBatch(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="batches")
+    ild_score = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
