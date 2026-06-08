@@ -21,9 +21,7 @@ The full detailed documentation from core concepts, architecture, setup, api ref
 ## UI Preview
 An arguably large part of the project depends on the User Interface, allow an intuitive way to interact with the recommender system. 
 
-![Highlight UIs](docs/images/highlight-ui.png)
-
 The app based the discover aspect on a swipe-based UI, similar like Tinder, but for attractions.
 The swiping animation is made customly from scratch based on [Rakha Wibowo's guide on YTB](https://www.youtube.com/watch?v=-JoQ5Y_unl8&t=1176s)
 
-<img src="docs/gifs/swiping-animation.gif" style="width: 50%;" />
+![highlights UI](docs/gifs/highlightUIs.gif)
