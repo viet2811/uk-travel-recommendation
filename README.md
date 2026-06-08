@@ -1,7 +1,7 @@
 ## Project
 The project is part of BSc Computer Science Final Year Project. There's no name for this project yet (it's hard).
 
-The repo contains the code that can be run locally. It is not ready for deployment due to complex nature of mobile application publication (and time).
+The repo contains the code that can be run locally. It is not ready for deployment as it only acts as a prototype for the dissertation.
 
 ## Abstract / About the project
 Discovering travel destinations beyond the mainstream is a genuinely frustrating experience. 
